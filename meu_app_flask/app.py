@@ -42,61 +42,48 @@ def index():
     # Mapear os meses para os nomes
     meses = {mes: meses_dict[mes.split('/')[0]] for mes in meses_numeros}
 
-    selected_site = request.form.get("site")
+    # Verificar se o site e a empresa foram selecionados, caso contrário, usar valores padrão
+    selected_site = request.form.get("site") or "CTI"
     selected_nomes = request.form.getlist("nomes")
     selected_meses = request.form.getlist("meses")  # Captura os meses selecionados
     empresas = []
     empresa_opcoes = []
     df = None
 
-    if selected_site:
-        # Após selecionar o site, carregar empresas
-        site_id = get_site_id(selected_site)
-        empresas = get_empresas(site_id)
-        empresa_opcoes = [empresa[1] for empresa in empresas]
+    # Obter ID do site, carregando as empresas
+    site_id = get_site_id(selected_site)
+    empresas = get_empresas(site_id)
+    empresa_opcoes = [empresa[1] for empresa in empresas]
 
-        selected_empresa = request.form.get("empresa")
-        
-        if selected_empresa:
-            empresa_id = get_empresa_id(selected_empresa, empresas)
-            siteempresa_id = get_siteempresa_id(site_id, empresa_id)
+    # Verificar se a empresa foi selecionada, caso contrário, usar valor padrão
+    selected_empresa = request.form.get("empresa") or "NAVA"
+    
+    empresa_id = get_empresa_id(selected_empresa, empresas)
+    siteempresa_id = get_siteempresa_id(site_id, empresa_id)
 
-            # Consulta inicial com o site e empresa selecionados
-            query = f"""
-            SELECT Nome.Nome, Presenca.Presenca, 
-                   FORMAT(Controle.Data, 'dd/mm/yyyy') AS Data
-            FROM Presenca 
-            INNER JOIN (Nome 
-            INNER JOIN Controle ON Nome.id_Nomes = Controle.id_Nome) 
-            ON Presenca.id_Presenca = Controle.id_Presenca
-            WHERE Controle.id_SiteEmpresa = ?
-            """
-            params = [siteempresa_id]
+    # Consulta inicial com o site e empresa selecionados
+    query = f"""
+    SELECT Nome.Nome, Presenca.Presenca, 
+           FORMAT(Controle.Data, 'dd/mm/yyyy') AS Data
+    FROM Presenca 
+    INNER JOIN (Nome 
+    INNER JOIN Controle ON Nome.id_Nomes = Controle.id_Nome) 
+    ON Presenca.id_Presenca = Controle.id_Presenca
+    WHERE Controle.id_SiteEmpresa = ?
+    """
+    params = [siteempresa_id]
 
-            # Se nomes forem selecionados, adicionar filtro extra
-            if selected_nomes:
-                query += f" AND Nome.Nome IN ({','.join(['?'] * len(selected_nomes))})"
-                params += selected_nomes
+    # Se nomes forem selecionados, adicionar filtro extra
+    if selected_nomes:
+        query += f" AND Nome.Nome IN ({','.join(['?'] * len(selected_nomes))})"
+        params += selected_nomes
 
-            # Se meses forem selecionados, adicionar filtro extra
-            if selected_meses:
-                query += f" AND FORMAT(Controle.Data, 'MM/yyyy') IN ({','.join(['?'] * len(selected_meses))})"
-                params += selected_meses
+    # Se meses forem selecionados, adicionar filtro extra
+    if selected_meses:
+        query += f" AND FORMAT(Controle.Data, 'MM/yyyy') IN ({','.join(['?'] * len(selected_meses))})"
+        params += selected_meses
 
-            df = pd.read_sql(query, conn, params=params)
-        else:
-            # Exibir a tabela sem filtro de nomes (apenas site e empresa)
-            query = f"""
-            SELECT Nome.Nome, Presenca.Presenca, 
-                   FORMAT(Controle.Data, 'dd/mm/yyyy') AS Data
-            FROM Presenca 
-            INNER JOIN (Nome 
-            INNER JOIN Controle ON Nome.id_Nomes = Controle.id_Nome) 
-            ON Presenca.id_Presenca = Controle.id_Presenca
-            WHERE Controle.id_SiteEmpresa = ?
-            """
-            params = [siteempresa_id]
-            df = pd.read_sql(query, conn, params=params)
+    df = pd.read_sql(query, conn, params=params)
 
     return render_template(
         "index.html", sites=sites, empresas=empresa_opcoes, nomes=nomes,
