@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Presença</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <link rel="stylesheet" href="../static/styles.css">
+    <script>
+        $(document).ready(function() {
+            // Inicializa o Select2
+            $('#nomes, #meses').select2();
+
+            // Atualiza o formulário automaticamente quando o site é selecionado
+            $('#site').on('change', function() {
+                this.form.submit();
+            });
+
+            // Atualiza o formulário automaticamente quando a empresa é selecionada
+            $('#empresa').on('change', function() {
+                this.form.submit();
+            });
+
+            // Atualiza o formulário automaticamente quando nomes ou meses são selecionados
+            $('#nomes, #meses').on('change', function() {
+                this.form.submit();
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Filtrar por Site, Empresa, Nomes e Meses</h1>
+
+    <form class="teste" id="filterForm" action="/" method="POST">
+        <div class="selects-forms">
+            <label for="site">Selecione o Site:</label>
+            <select id="site" name="site">
+                <option value="">-- Escolha um Site --</option>
+                {% for site in sites %}
+                    <option value="{{ site }}" 
+                        {% if site == selected_site %}selected{% endif %}>
+                        {{ site }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {% if empresas %}
+        <div class="selects-forms">
+            <label for="empresa">Selecione a Empresa:</label>
+            <select id="empresa" name="empresa">
+                <option value="">-- Escolha uma Empresa --</option>
+                {% for empresa in empresas %}
+                    <option value="{{ empresa }}" 
+                        {% if empresa == selected_empresa %}selected{% endif %}>
+                        {{ empresa }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+
+        <div class="selects-forms" id="nomes-container">
+            <label for="nomes">Selecione Nomes:</label>
+            <select id="nomes" name="nomes" multiple="multiple">
+                {% for nome in nomes %}
+                    <option value="{{ nome }}" 
+                        {% if nome in selected_nomes %}selected{% endif %}>
+                        {{ nome }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="selects-forms" id="meses-container">
+            <label for="meses">Selecione Meses:</label>
+            <select id="meses" name="meses" multiple="multiple">
+                {% for mes in meses %}
+                    <option value="{{ mes }}" 
+                        {% if mes in selected_meses %}selected{% endif %}>
+                        {{ mes }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+
+    <!-- Tabela de Resultados -->
+    <div id="table-container">
+        {% if data is not none %}
+            <h2>Resultados:</h2>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Presença</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in data.iterrows() %}
+                        <tr>
+                            <td>{{ row['Nome'] }}</td>
+                            <td>{{ row['Presenca'] }}</td>
+                            <td>{{ row['Data'] }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Nenhum dado disponível para o filtro selecionado.</p>
+        {% endif %}
+    </div>
+</body>
+</html>
