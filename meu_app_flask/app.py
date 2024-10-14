@@ -32,6 +32,11 @@ def index():
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
+    # Obter empresas com base no site selecionado
+    selected_site = request.form.get("site") or "CTI"
+    empresas = get_empresas(get_site_id(selected_site))  # Obter empresas do site selecionado
+    empresa_opcoes = [empresa[1] for empresa in empresas]
+
     query_nomes = "SELECT DISTINCT Nome FROM Nome"
     nomes = pd.read_sql(query_nomes, conn)['Nome'].tolist()
 
@@ -50,8 +55,8 @@ def index():
     df['Mês'] = df['Mês'].map(meses_dict)  # Converter para português usando meses_dict
 
     # Verificar os filtros
-    selected_site = request.form.get("site") or "CTI"
     selected_nomes = request.form.getlist("nomes")
+    selected_empresa = request.form.get("empresa") or "NAVA"  # Valor padrão para empresa
     selected_meses = request.form.getlist("meses")  # Captura os meses selecionados
 
     # Filtrar com base nos nomes selecionados
@@ -67,9 +72,9 @@ def index():
 
     # Enviar o dataframe filtrado para o template
     return render_template(
-        "index.html", sites=sites, nomes=nomes, meses=meses_dict.values(),
-        selected_site=selected_site, selected_nomes=selected_nomes,
-        selected_meses=selected_meses, data=df
+        "index.html", sites=sites, empresas=empresa_opcoes, nomes=nomes, meses=meses_dict.values(),
+        selected_site=selected_site, selected_empresa=selected_empresa,
+        selected_nomes=selected_nomes, selected_meses=selected_meses, data=df
     )
 
 # Funções de ajuda não alteradas
