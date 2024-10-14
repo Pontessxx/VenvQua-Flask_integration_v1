@@ -13,6 +13,12 @@
     flex-direction: column;
 }
 
+
+.select2 {
+    width: 20em;
+}
+
+
 /* Tabela estilisando */
 .content-table{
     border-collapse: collapse;
