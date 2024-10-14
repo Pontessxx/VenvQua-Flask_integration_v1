@@ -11,7 +11,12 @@
     <script>
         $(document).ready(function() {
             // Inicializa o Select2
-            $('#nomes, #meses').select2();
+            $('#nomes').select2(
+               { placeholder: "Selecione Nomes"}
+            );
+            $('#meses').select2(
+                { placeholder: "Selecione Meses"}
+            );
 
             // Atualiza o formulário automaticamente quando o site é selecionado
             $('#site').on('change', function() {
@@ -66,7 +71,6 @@
         {% endif %}
 
         <div class="selects-forms" id="nomes-container">
-            <label for="nomes">Selecione Nomes:</label>
             <select id="nomes" name="nomes" multiple="multiple">
                 {% for nome in nomes %}
                     <option value="{{ nome }}" 
@@ -78,7 +82,6 @@
         </div>
 
         <div class="selects-forms" id="meses-container">
-            <label for="meses">Selecione Meses:</label>
             <select id="meses" name="meses" multiple="multiple">
                 {% for mes in meses %}
                     <option value="{{ mes }}" 
@@ -94,7 +97,6 @@
     <!-- Tabela de Resultados -->
     <div id="table-container">
         {% if data is not none %}
-            <hr></hr>
             <table class="content-table">
                 <thead>
                     <tr>
