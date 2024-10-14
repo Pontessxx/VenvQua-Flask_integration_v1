@@ -11,20 +11,20 @@ conn_str = (
 )
 conn = pyodbc.connect(conn_str)
 
-# Dicionário para os meses
+# Dicionário para os meses em português
 meses_dict = {
-    "01": "Janeiro",
-    "02": "Fevereiro",
-    "03": "Março",
-    "04": "Abril",
-    "05": "Maio",
-    "06": "Junho",
-    "07": "Julho",
-    "08": "Agosto",
-    "09": "Setembro",
-    "10": "Outubro",
-    "11": "Novembro",
-    "12": "Dezembro"
+    "January": "Janeiro",
+    "February": "Fevereiro",
+    "March": "Março",
+    "April": "Abril",
+    "May": "Maio",
+    "June": "Junho",
+    "July": "Julho",
+    "August": "Agosto",
+    "September": "Setembro",
+    "October": "Outubro",
+    "November": "Novembro",
+    "December": "Dezembro"
 }
 
 @app.route("/", methods=["GET", "POST"])
@@ -35,60 +35,41 @@ def index():
     query_nomes = "SELECT DISTINCT Nome FROM Nome"
     nomes = pd.read_sql(query_nomes, conn)['Nome'].tolist()
 
-    # Obter meses distintos como números
-    query_meses = "SELECT DISTINCT FORMAT(Data, 'MM/yyyy') AS Mes FROM Controle"
-    meses_numeros = pd.read_sql(query_meses, conn)['Mes'].tolist()
-
-    # Mapear os meses para os nomes
-    meses = {mes: meses_dict[mes.split('/')[0]] for mes in meses_numeros}
-
-    # Verificar se o site e a empresa foram selecionados, caso contrário, usar valores padrão
-    selected_site = request.form.get("site") or "CTI"
-    selected_nomes = request.form.getlist("nomes")
-    selected_meses = request.form.getlist("meses")  # Captura os meses selecionados
-    empresas = []
-    empresa_opcoes = []
-    df = None
-
-    # Obter ID do site, carregando as empresas
-    site_id = get_site_id(selected_site)
-    empresas = get_empresas(site_id)
-    empresa_opcoes = [empresa[1] for empresa in empresas]
-
-    # Verificar se a empresa foi selecionada, caso contrário, usar valor padrão
-    selected_empresa = request.form.get("empresa") or "NAVA"
-    
-    empresa_id = get_empresa_id(selected_empresa, empresas)
-    siteempresa_id = get_siteempresa_id(site_id, empresa_id)
-
-    # Consulta inicial com o site e empresa selecionados
-    query = f"""
-    SELECT Nome.Nome, Presenca.Presenca, 
-           FORMAT(Controle.Data, 'dd/mm/yyyy') AS Data
+    # Consulta inicial para obter os dados completos
+    query = """
+    SELECT Nome.Nome, Presenca.Presenca, Controle.Data
     FROM Presenca 
     INNER JOIN (Nome 
     INNER JOIN Controle ON Nome.id_Nomes = Controle.id_Nome) 
     ON Presenca.id_Presenca = Controle.id_Presenca
-    WHERE Controle.id_SiteEmpresa = ?
     """
-    params = [siteempresa_id]
+    df = pd.read_sql(query, conn)
 
-    # Se nomes forem selecionados, adicionar filtro extra
+    # Criar a coluna de Mês com o nome do mês em inglês e mapeá-la para português
+    df['Mês'] = df['Data'].dt.strftime('%B')  # Obter mês em inglês
+    df['Mês'] = df['Mês'].map(meses_dict)  # Converter para português usando meses_dict
+
+    # Verificar os filtros
+    selected_site = request.form.get("site") or "CTI"
+    selected_nomes = request.form.getlist("nomes")
+    selected_meses = request.form.getlist("meses")  # Captura os meses selecionados
+
+    # Filtrar com base nos nomes selecionados
     if selected_nomes:
-        query += f" AND Nome.Nome IN ({','.join(['?'] * len(selected_nomes))})"
-        params += selected_nomes
+        df = df[df['Nome'].isin(selected_nomes)]
 
-    # Se meses forem selecionados, adicionar filtro extra
+    # Filtrar com base nos meses selecionados
     if selected_meses:
-        query += f" AND FORMAT(Controle.Data, 'MM/yyyy') IN ({','.join(['?'] * len(selected_meses))})"
-        params += selected_meses
+        df = df[df['Mês'].isin(selected_meses)]
 
-    df = pd.read_sql(query, conn, params=params)
+    # Convertendo a coluna 'Data' para string com formato 'dd/mm/yyyy'
+    df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
+    # Enviar o dataframe filtrado para o template
     return render_template(
-        "index.html", sites=sites, empresas=empresa_opcoes, nomes=nomes,
-        meses=meses.items(), selected_site=selected_site, selected_empresa=selected_empresa, 
-        selected_nomes=selected_nomes, selected_meses=selected_meses, data=df
+        "index.html", sites=sites, nomes=nomes, meses=meses_dict.values(),
+        selected_site=selected_site, selected_nomes=selected_nomes,
+        selected_meses=selected_meses, data=df
     )
 
 # Funções de ajuda não alteradas

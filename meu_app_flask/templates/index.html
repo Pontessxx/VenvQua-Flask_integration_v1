@@ -24,7 +24,10 @@
             });
 
             // Atualiza o formulário automaticamente quando nomes ou meses são selecionados
-            $('#nomes, #meses').on('change', function() {
+            $('#nomes').on('change', function() {
+                this.form.submit();
+            });
+            $('#meses').on('change', function() {
                 this.form.submit();
             });
         });
@@ -85,6 +88,7 @@
                 {% endfor %}
             </select>
         </div>
+                 
     </form>
 
     <!-- Tabela de Resultados -->
