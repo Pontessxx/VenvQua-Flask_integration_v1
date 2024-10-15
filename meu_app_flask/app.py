@@ -19,7 +19,6 @@ meses_dict = {
     "October": "Outubro", "November": "Novembro", "December": "Dezembro"
 }
 
-# Verifica se há dados para o site e empresa selecionados
 @app.route('/check_data', methods=['POST'])
 def check_data():
     site = request.form.get('site')
@@ -41,13 +40,11 @@ def check_data():
     else:
         return jsonify({'hasData': False})
 
-# Rota principal para renderizar a interface e manipular dados
 @app.route("/", methods=["GET", "POST"])
 def index():
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
-    # Captura os valores do formulário
     selected_site = request.form.get("site")
     selected_empresa = request.form.get("empresa")
     selected_nomes = request.form.getlist("nomes")
@@ -58,32 +55,27 @@ def index():
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
 
-    # Somente preenche a tabela se site e empresa foram selecionados
-    df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])  # Tabela vazia
+    df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])
     if selected_site and selected_empresa:
-        # Verifica se há dados para o site e empresa selecionados
-        query = """
-        SELECT Nome.Nome, Presenca.Presenca, Controle.Data
-        FROM ((Controle
-        INNER JOIN Nome ON Controle.id_Nome = Nome.id_Nomes)
-        INNER JOIN Presenca ON Controle.id_Presenca = Presenca.id_Presenca)
-        INNER JOIN Site_Empresa ON Controle.id_SiteEmpresa = Site_Empresa.id_SiteEmpresa
-        WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.id_Empresas = ?
-        """
+        try:
+            query = """
+            SELECT Nome.Nome, Presenca.Presenca, Controle.Data
+            FROM (((Controle
+            INNER JOIN Nome ON Controle.id_Nome = Nome.id_Nomes)
+            INNER JOIN Presenca ON Controle.id_Presenca = Presenca.id_Presenca)
+            INNER JOIN Site_Empresa ON Controle.id_SiteEmpresa = Site_Empresa.id_SiteEmpresa)
+            WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.id_Empresas = ?
+            """
+            cursor = conn.cursor()
+            cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
+            rows = cursor.fetchall()
 
-        cursor = conn.cursor()
-        cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
-        rows = cursor.fetchall()
-
-        if rows:
-            try:
+            if rows:
                 df = pd.DataFrame([list(row) for row in rows], columns=['Nome', 'Presenca', 'Data'])
                 df['Data'] = pd.to_datetime(df['Data']).dt.strftime('%d/%m/%Y')
-            except ValueError as e:
-                print(f"Erro ao criar DataFrame: {e}")
-                df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])  # Tabela vazia
+        except Exception as e:
+            print(f"Erro ao consultar ou criar DataFrame: {e}")
 
-    # Renderiza o template com os dados e filtros
     return render_template(
         "index.html",
         sites=sites,
@@ -99,7 +91,6 @@ def index():
         data=df
     )
 
-# Funções auxiliares para obtenção de IDs e dados
 def get_site_id(site_name):
     cursor = conn.cursor()
     cursor.execute("SELECT id_Site FROM Site WHERE Sites = ?", (site_name,))

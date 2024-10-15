@@ -10,11 +10,11 @@
     <link rel="stylesheet" href="../static/styles.css">
     <script>
         $(document).ready(function () {
-            $('#nomes').select2({ placeholder: "Choose an option" });
-            $('#meses').select2({ placeholder: "Choose an option" });
-            $('#presenca').select2({ placeholder: "Choose an option" });
-
-            // Enviar site e empresa com os filtros
+            $('#nomes').select2({ placeholder: "Escolha um nome" });
+            $('#meses').select2({ placeholder: "Escolha um mês" });
+            $('#presenca').select2({ placeholder: "Escolha um tipo de presença" });
+    
+            // Função para submeter o formulário de filtros preservando site e empresa
             function submitWithSiteEmpresa() {
                 const site = $('#site').val();
                 const empresa = $('#empresa').val();
@@ -22,23 +22,23 @@
                 $('#hiddenEmpresa').val(empresa);
                 $('#filterForm').submit();
             }
-
-            // Submeter formulário quando site ou empresa forem alterados
-            $('#site, #empresa').on('change', function () {
-                $('#siteForm').submit();
-            });
-
-            // Submeter filtros junto com site e empresa
+    
+            // Evento ao mudar os filtros
             $('#nomes, #meses, #presenca').on('change', function () {
                 submitWithSiteEmpresa();
             });
-
+    
+            // Evento ao mudar site ou empresa
+            $('#site, #empresa').on('change', function () {
+                $('#siteForm').submit();
+            });
+    
             // Verifica e aplica o tema salvo no LocalStorage
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
                 document.body.classList.add(savedTheme);
             }
-
+    
             // Alterna o tema e salva no LocalStorage
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
@@ -49,6 +49,7 @@
             });
         });
     </script>
+    
 </head>
 <body>
     <div class="container">
@@ -83,10 +84,9 @@
 
             <div class="filtros">
                 <form id="filterForm" action="/" method="POST">
-                    <!-- Campos ocultos para manter valores de site e empresa -->
                     <input type="hidden" id="hiddenSite" name="site" value="{{ selected_site }}">
                     <input type="hidden" id="hiddenEmpresa" name="empresa" value="{{ selected_empresa }}">
-
+                
                     <div>
                         <label for="nomes">Selecione Nomes:</label>
                         <select id="nomes" name="nomes" multiple="multiple">
@@ -97,7 +97,7 @@
                             {% endfor %}
                         </select>
                     </div>
-
+                
                     <div>
                         <label for="presenca">Selecione o Tipo de Presença:</label>
                         <select id="presenca" name="presenca" multiple="multiple">
@@ -108,7 +108,7 @@
                             {% endfor %}
                         </select>
                     </div>
-
+                
                     <div>
                         <label for="meses">Selecione o Mês:</label>
                         <select id="meses" name="meses" multiple="multiple">
@@ -120,6 +120,7 @@
                         </select>
                     </div>
                 </form>
+                
             </div>
 
             <div id="table-container">
