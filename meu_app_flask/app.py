@@ -40,6 +40,11 @@ def index():
     query_nomes = "SELECT DISTINCT Nome FROM Nome"
     nomes = pd.read_sql(query_nomes, conn)['Nome'].tolist()
 
+    # Obter os tipos de presença distintos
+    query_presenca = "SELECT DISTINCT Presenca FROM Presenca"
+    presencas = pd.read_sql(query_presenca, conn)['Presenca'].tolist()
+
+
     # Consulta inicial para obter os dados completos
     query = """
     SELECT Nome.Nome, Presenca.Presenca, Controle.Data
@@ -58,6 +63,7 @@ def index():
     selected_nomes = request.form.getlist("nomes")
     selected_empresa = request.form.get("empresa") or "NAVA"  # Valor padrão para empresa
     selected_meses = request.form.getlist("meses")  # Captura os meses selecionados
+    selected_presenca = request.form.getlist("presenca")  # Captura o tipo de presença selecionado
 
     # Filtrar com base nos nomes selecionados
     if selected_nomes:
@@ -67,14 +73,18 @@ def index():
     if selected_meses:
         df = df[df['Mês'].isin(selected_meses)]
 
+    # Filtrar com base no tipo de presença selecionado
+    if selected_presenca:
+        df = df[df['Presenca'].isin(selected_presenca)]
+
     # Convertendo a coluna 'Data' para string com formato 'dd/mm/yyyy'
     df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
     # Enviar o dataframe filtrado para o template
     return render_template(
         "index.html", sites=sites, empresas=empresa_opcoes, nomes=nomes, meses=meses_dict.values(),
-        selected_site=selected_site, selected_empresa=selected_empresa,
-        selected_nomes=selected_nomes, selected_meses=selected_meses, data=df
+        presencas=presencas, selected_site=selected_site, selected_empresa=selected_empresa,
+        selected_nomes=selected_nomes, selected_meses=selected_meses, selected_presenca=selected_presenca, data=df
     )
 
 # Funções de ajuda não alteradas

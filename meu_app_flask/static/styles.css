@@ -1,34 +1,61 @@
 :root {
-    --primary-color: #484848;
-    --secondary-color: #ffffff;
-    --table-row-background: #f3f3f3;
-    --table-border-color: #dddddd;
-    --box-shadow-color: rgba(0, 0, 0, 0.15);
+    /* Variáveis de cores para o modo claro */
+    --primary-color: #484848; /* Cor primária (elementos principais) */
+    --secondary-color: #ffffff; /* Cor secundária (textos) */
+    --background-color: #f0f0f0; /* Cor de fundo */
+    --text-color: #000000; /* Cor de texto para modo claro */
+    --table-row-background: #c2c2c2; /* Fundo alternado das linhas da tabela */
+    --table-border-color: #dddddd; /* Cor da borda da tabela */
+    --box-shadow-color: rgba(0, 0, 0, 0.15); /* Cor de sombra */
 }
 
+body.dark-mode {
+    /* Variáveis de cores para o modo escuro */
+    --primary-color: #222222; /* Cor primária no modo escuro */
+    --secondary-color: #bbbbbb; /* Cor de destaque no modo escuro */
+    --background-color: #121212; /* Cor de fundo escuro */
+    --text-color: #ffffff; /* Cor de texto branco no modo escuro */
+    --table-row-background: #333333; /* Cor de fundo das linhas da tabela no modo escuro */
+    --table-border-color: #555555; /* Cor da borda da tabela no modo escuro */
+    --box-shadow-color: rgba(255, 255, 255, 0.15); /* Cor da sombra no modo escuro */
+}
+
+/* Aplicando as cores às diferentes partes do site */
 * {
     padding: 0;
     margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-color); /* Cor de fundo */
+    color: var(--text-color); /* Cor do texto */
+}
+
+h1, h2, h3, h4, h5, h6, p, label, select, input {
+    color: var(--text-color); /* Cor do texto em elementos principais */
 }
 
 .teste {
-   display: flex;
-   justify-content: space-around;
-   align-items: center;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
+/* Estilos de seleção dos formulários */
 .teste .selects-forms {
     display: flex;
     flex-direction: column;
 }
 
+/* Estilos dos componentes Select2 */
 .select2 {
     width: 20em;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
+    background-color: var(--primary-color); /* Cor do fundo dos itens selecionados */
+    color: var(--secondary-color); /* Cor do texto dos itens selecionados */
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice span {
@@ -54,6 +81,7 @@
 .content-table th,
 .content-table td {
     padding: 5px 0px;
+    color: var(--text-color); /* Texto da tabela */
 }
 
 .content-table tbody tr {
@@ -66,4 +94,14 @@
 
 .content-table tbody tr:last-of-type {
     border-bottom: 2px solid var(--primary-color);
+}
+
+/* Adicionando um estilo para links no modo escuro */
+a {
+    color: var(--text-color); /* Links também seguem a cor de texto */
+    text-decoration: none;
+}
+
+a:hover {
+    color: var(--secondary-color); /* Efeito de hover nos links */
 }

@@ -17,7 +17,9 @@
             $('#meses').select2(
                 { placeholder: "Selecione Meses"}
             );
-
+            $('#presenca').select2(
+               { placeholder: "Selecione tipo de Presença"}
+            );
             // Atualiza o formulário automaticamente quando o site é selecionado
             $('#site').on('change', function() {
                 this.form.submit();
@@ -35,12 +37,18 @@
             $('#meses').on('change', function() {
                 this.form.submit();
             });
+            $('#presenca').on('change', function() {
+                this.form.submit();
+            });
+            $('#toggle-theme').on('click', function() {
+                document.body.classList.toggle('dark-mode');
+            });
         });
     </script>
 </head>
 <body>
     <h1>Filtrar por Site, Empresa, Nomes e Meses</h1>
-
+    <button id="toggle-theme">Alternar Tema</button>
     <form class="teste" id="filterForm" action="/" method="POST">
         <div class="selects-forms">
             <label for="site">Selecione o Site:</label>
@@ -91,7 +99,19 @@
                 {% endfor %}
             </select>
         </div>
-                 
+        <div class="selects-forms" id="presenca-container">
+            <label for="presenca">Selecione o Tipo de Presença:</label>
+            <select id="presenca" name="presenca" multiple="multiple">
+                <option value="">-- Escolha um Tipo de Presença --</option>
+                {% for presenca in presencas %}
+                    <option value="{{ presenca }}" 
+                        {% if presenca in selected_presenca %}selected{% endif %}>
+                        {{ presenca }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+               
     </form>
 
     <!-- Tabela de Resultados -->
