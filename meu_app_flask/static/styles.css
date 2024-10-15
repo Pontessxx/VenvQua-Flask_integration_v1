@@ -64,14 +64,51 @@ body {
     transition: background-color 0.3s;
 }
 
-.content-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+#table-container {
+    max-height: 400px; /* Define uma altura máxima fixa para a tabela */
+    overflow-y: auto;  /* Habilita a rolagem vertical */
+    margin-top: 20px;  /* Espaço acima da tabela */
     box-shadow: 0 0 10px var(--box-shadow-color);
+}
+
+.content-table {
+    width: 100%; /* A tabela ocupará 100% do container */
+    border-collapse: collapse;
+    table-layout: fixed; /* Mantém as colunas com tamanho proporcional */
+}
+
+.content-table thead th {
+    position: sticky; /* Mantém o cabeçalho fixo no topo ao rolar */
+    top: 0;
+    background-color: var(--menu-background-color);
+    z-index: 1;
 }
 
 .content-table th, .content-table td {
     padding: 10px;
     border-bottom: 1px solid var(--table-border-color);
+    text-align: left;
+    word-wrap: break-word; /* Quebra de linha automática nas células */
 }
+/* Barra de rolagem padrão */
+#table-container::-webkit-scrollbar {
+    width: 12px; /* Largura da barra de rolagem */
+}
+
+#table-container::-webkit-scrollbar-thumb {
+    background-color: var(--menu-background-color); /* Cor do "polegar" (parte que se move) */
+    border-radius: 10px; /* Arredondamento */
+    border: 2px solid transparent; /* Espaço ao redor do polegar */
+    background-clip: padding-box;
+}
+
+#table-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--menu-background-color);
+}
+
+/* Fundo da barra de rolagem */
+#table-container::-webkit-scrollbar-track {
+    background-color: var(--menu-background-color-light); /* Cor do fundo da barra */
+    border-radius: 10px;
+}
+
