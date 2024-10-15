@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import pyodbc
 
@@ -13,25 +13,41 @@ conn = pyodbc.connect(conn_str)
 
 # Dicionário para os meses em português
 meses_dict = {
-    "January": "Janeiro",
-    "February": "Fevereiro",
-    "March": "Março",
-    "April": "Abril",
-    "May": "Maio",
-    "June": "Junho",
-    "July": "Julho",
-    "August": "Agosto",
-    "September": "Setembro",
-    "October": "Outubro",
-    "November": "Novembro",
-    "December": "Dezembro"
+    "January": "Janeiro", "February": "Fevereiro", "March": "Março",
+    "April": "Abril", "May": "Maio", "June": "Junho",
+    "July": "Julho", "August": "Agosto", "September": "Setembro",
+    "October": "Outubro", "November": "Novembro", "December": "Dezembro"
 }
 
+# Verifica se há dados para o site e empresa selecionados
+@app.route('/check_data', methods=['POST'])
+def check_data():
+    site = request.form.get('site')
+    empresa = request.form.get('empresa')
+
+    query = """
+    SELECT COUNT(*) 
+    FROM Site_Empresa 
+    WHERE id_Sites = (SELECT id_Site FROM Site WHERE Sites = ?) 
+      AND id_Empresas = (SELECT id_Empresa FROM Empresa WHERE Empresas = ?) 
+      AND Ativo = True
+    """
+    cursor = conn.cursor()
+    cursor.execute(query, (site, empresa))
+    result = cursor.fetchone()
+
+    if result and result[0] > 0:
+        return jsonify({'hasData': True})
+    else:
+        return jsonify({'hasData': False})
+
+# Rota principal para renderizar a interface e manipular dados
 @app.route("/", methods=["GET", "POST"])
 def index():
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
+    # Captura os valores do formulário
     selected_site = request.form.get("site")
     selected_empresa = request.form.get("empresa")
     selected_nomes = request.form.getlist("nomes")
@@ -42,42 +58,48 @@ def index():
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
 
-    # Consulta inicial da tabela com filtros
-    query = """
-    SELECT Nome.Nome, Presenca.Presenca, Controle.Data
-    FROM Presenca 
-    INNER JOIN (Nome 
-    INNER JOIN Controle ON Nome.id_Nomes = Controle.id_Nome) 
-    ON Presenca.id_Presenca = Controle.id_Presenca
-    """
-    df = pd.read_sql(query, conn)
+    # Somente preenche a tabela se site e empresa foram selecionados
+    df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])  # Tabela vazia
+    if selected_site and selected_empresa:
+        # Verifica se há dados para o site e empresa selecionados
+        query = """
+        SELECT Nome.Nome, Presenca.Presenca, Controle.Data
+        FROM ((Controle
+        INNER JOIN Nome ON Controle.id_Nome = Nome.id_Nomes)
+        INNER JOIN Presenca ON Controle.id_Presenca = Presenca.id_Presenca)
+        INNER JOIN Site_Empresa ON Controle.id_SiteEmpresa = Site_Empresa.id_SiteEmpresa
+        WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.id_Empresas = ?
+        """
 
-    if selected_nomes:
-        df = df[df['Nome'].isin(selected_nomes)]
-    if selected_meses:
-        df = df[df['Mês'].isin(selected_meses)]
-    if selected_presenca:
-        df = df[df['Presenca'].isin(selected_presenca)]
+        cursor = conn.cursor()
+        cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
+        rows = cursor.fetchall()
 
-    df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
+        if rows:
+            try:
+                df = pd.DataFrame([list(row) for row in rows], columns=['Nome', 'Presenca', 'Data'])
+                df['Data'] = pd.to_datetime(df['Data']).dt.strftime('%d/%m/%Y')
+            except ValueError as e:
+                print(f"Erro ao criar DataFrame: {e}")
+                df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])  # Tabela vazia
 
+    # Renderiza o template com os dados e filtros
     return render_template(
-        "index.html", 
-        sites=sites, 
-        empresas=[e[1] for e in empresas], 
-        nomes=pd.read_sql("SELECT DISTINCT Nome FROM Nome", conn)['Nome'].tolist(), 
-        meses=meses_dict.values(), 
+        "index.html",
+        sites=sites,
+        empresas=[e[1] for e in empresas],
+        nomes=pd.read_sql("SELECT DISTINCT Nome FROM Nome", conn)['Nome'].tolist(),
+        meses=meses_dict.values(),
         presencas=pd.read_sql("SELECT DISTINCT Presenca FROM Presenca", conn)['Presenca'].tolist(),
-        selected_site=selected_site, 
+        selected_site=selected_site,
         selected_empresa=selected_empresa,
-        selected_nomes=selected_nomes, 
-        selected_meses=selected_meses, 
+        selected_nomes=selected_nomes,
+        selected_meses=selected_meses,
         selected_presenca=selected_presenca,
         data=df
     )
 
-
-# Funções de ajuda não alteradas
+# Funções auxiliares para obtenção de IDs e dados
 def get_site_id(site_name):
     cursor = conn.cursor()
     cursor.execute("SELECT id_Site FROM Site WHERE Sites = ?", (site_name,))
@@ -101,16 +123,6 @@ def get_empresa_id(empresa_nome, empresas):
         if empresa[1] == empresa_nome:
             return empresa[0]
     return None
-
-def get_siteempresa_id(site_id, empresa_id):
-    cursor = conn.cursor()
-    query = """
-    SELECT id_SiteEmpresa FROM Site_Empresa 
-    WHERE id_Sites = ? AND id_Empresas = ? AND Ativo = True
-    """
-    cursor.execute(query, (site_id, empresa_id))
-    result = cursor.fetchone()
-    return result[0] if result else None
 
 if __name__ == "__main__":
     app.run(debug=True)
