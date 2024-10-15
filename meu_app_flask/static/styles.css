@@ -1,116 +1,77 @@
 :root {
-    /* Variáveis de cores para o modo claro */
-    --primary-color: #484848; /* Cor primária (elementos principais) */
-    --secondary-color: #ffffff; /* Cor secundária (textos) */
-    --background-color: #f0f0f0; /* Cor de fundo */
-    --text-color: #000000; /* Cor de texto para modo claro */
-    --table-row-background: #c2c2c2; /* Fundo alternado das linhas da tabela */
-    --table-border-color: #dddddd; /* Cor da borda da tabela */
-    --box-shadow-color: rgba(0, 0, 0, 0.15); /* Cor de sombra */
-    --selects-forms-border-color: #313131; /* Cor da borda dos selects */
+    /* Modo Claro */
+    --background-color: rgb(255, 255, 255); /* Cor de fundo */
+    --menu-background-color: rgb(240, 242, 246); /* Cor do menu */
+    --text-color: rgb(49, 51, 63); /* Cor do texto */
+    --table-border-color: #444; /* Cor das bordas da tabela */
+    --box-shadow-color: rgba(0, 0, 0, 0.5); /* Sombra */
 }
 
-body.dark-mode {
-    /* Variáveis de cores para o modo escuro */
-    --primary-color: #222222; /* Cor primária no modo escuro */
-    --secondary-color: #bbbbbb; /* Cor de destaque no modo escuro */
-    --background-color: #121212; /* Cor de fundo escuro */
-    --text-color: #ffffff; /* Cor de texto branco no modo escuro */
-    --table-row-background: #333333; /* Cor de fundo das linhas da tabela no modo escuro */
-    --table-border-color: #555555; /* Cor da borda da tabela no modo escuro */
-    --box-shadow-color: rgba(255, 255, 255, 0.15); /* Cor da sombra no modo escuro */
-    --selects-forms-border-color: #747474;
+.dark-mode {
+    /* Modo Escuro */
+    --background-color: rgb(14, 17, 23); /* Cor de fundo */
+    --menu-background-color: rgb(38, 39, 48); /* Cor do menu */
+    --text-color: rgb(255, 255, 255); /* Cor do texto */
 }
 
-/* Aplicando as cores às diferentes partes do site */
-* {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-}
-
+/* Aplicação das cores usando as variáveis */
 body {
-    background-color: var(--background-color); /* Cor de fundo */
-    color: var(--text-color); /* Cor do texto */
-}
-
-h1, h2, h3, h4, h5, h6, p, label, select, input {
-    color: var(--text-color); /* Cor do texto em elementos principais */
-}
-
-.teste {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-}
-
-/* Estilos de seleção dos formulários */
-.teste .selects-forms {
-    display: flex;
-    flex-direction: column;
-}
-.teste .selects-forms select {
-    margin: 5px 0;
-    padding: 5px;
-    border: 1px solid var(--selects-forms-border-color);
-    border-radius: 5px;
     background-color: var(--background-color);
     color: var(--text-color);
-}
-/* Estilos dos componentes Select2 */
-.select2 {
-    width: 20em;
+    font-family: Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__choice {
-    background-color: var(--primary-color); /* Cor do fundo dos itens selecionados */
-    color: var(--secondary-color); /* Cor do texto dos itens selecionados */
+.menu {
+    background-color: var(--menu-background-color);
+    padding: 20px;
+    width: 15%;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transition: background-color 0.3s;
 }
 
-.select2-container--default .select2-selection--multiple .select2-selection__choice span {
-    color: var(--secondary-color);
+.main-content {
+    margin-left: 22%; /* Espaço para o menu lateral */
+    padding: 20px;
+}
+.menu #site,
+.menu #empresa {
+    padding: 1em;
+    border-radius: 1em;
+    margin-bottom: 2em;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-color: transparent;
 }
 
-/* Estilização da Tabela */
+.menu button{
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border-color: transparent;
+    padding: 1em;
+    border-radius: 1em;
+    cursor: pointer;
+    font-size: 1em;
+}
+.menu button:hover {
+    background-color: var(--menu-background-color);
+    transition: background-color 0.3s;
+}
+
 .content-table {
+    width: 100%;
     border-collapse: collapse;
-    margin: 25px 0;
-    font: 0.9em;
-    min-width: 400px;
-    box-shadow: 0 0 20px var(--box-shadow-color);
+    margin-top: 20px;
+    box-shadow: 0 0 10px var(--box-shadow-color);
 }
 
-.content-table thead tr {
-    background-color: var(--primary-color);
-    color: var(--secondary-color);
-    text-align: left;
-    font-weight: bold;
-}
-
-.content-table th,
-.content-table td {
-    padding: 5px 0px;
-    color: var(--text-color); /* Texto da tabela */
-}
-
-.content-table tbody tr {
+.content-table th, .content-table td {
+    padding: 10px;
     border-bottom: 1px solid var(--table-border-color);
-}
-
-.content-table tbody tr:nth-of-type(even) {
-    background-color: var(--table-row-background);
-}
-
-.content-table tbody tr:last-of-type {
-    border-bottom: 2px solid var(--primary-color);
-}
-
-/* Adicionando um estilo para links no modo escuro */
-a {
-    color: var(--text-color); /* Links também seguem a cor de texto */
-    text-decoration: none;
-}
-
-a:hover {
-    color: var(--secondary-color); /* Efeito de hover nos links */
 }

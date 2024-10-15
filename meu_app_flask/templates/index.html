@@ -40,82 +40,91 @@
             $('#presenca').on('change', function() {
                 this.form.submit();
             });
-            $('#toggle-theme').on('click', function() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark-mode') {
+                document.body.classList.add('dark-mode');
+            }
+
+            // Alternar tema e salvar no Local Storage
+            $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
+                const currentTheme = document.body.classList.contains('dark-mode')
+                    ? 'dark-mode'
+                    : 'light-mode';
+                localStorage.setItem('theme', currentTheme);
             });
         });
     </script>
 </head>
 <body>
-    <h1>Filtrar por Site, Empresa, Nomes e Meses</h1>
-    <button id="toggle-theme">Alternar Tema</button>
-    <form class="teste" id="filterForm" action="/" method="POST">
-        <div class="selects-forms">
-            <label for="site">Selecione o Site:</label>
-            <select id="site" name="site">
-                <option value="">-- Escolha um Site --</option>
-                {% for site in sites %}
-                    <option value="{{ site }}" 
-                        {% if site == selected_site %}selected{% endif %}>
-                        {{ site }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+    <div class="menu">
+        <h2>Filtros de Navegação</h2>
+        <label for="site">Selecione o Site:</label>
+        <select id="site" name="site">
+            <option value="">-- Escolha um Site --</option>
+            {% for site in sites %}
+            <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>
+                {{ site }}
+            </option>
+            {% endfor %}
+        </select>
 
         {% if empresas %}
-        <div class="selects-forms">
-            <label for="empresa">Selecione a Empresa:</label>
-            <select id="empresa" name="empresa">
-                <option value="">-- Escolha uma Empresa --</option>
-                {% for empresa in empresas %}
-                    <option value="{{ empresa }}" 
-                        {% if empresa == selected_empresa %}selected{% endif %}>
-                        {{ empresa }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+        <label for="empresa">Selecione a Empresa:</label>
+        <select id="empresa" name="empresa">
+            <option value="">-- Escolha uma Empresa --</option>
+            {% for empresa in empresas %}
+            <option value="{{ empresa }}" {% if empresa == selected_empresa %}selected{% endif %}>
+                {{ empresa }}
+            </option>
+            {% endfor %}
+        </select>
         {% endif %}
+        <button id="toggle-theme">Alternar Tema</button>
+    </div>
 
-        <div class="selects-forms" id="nomes-container">
-            <select id="nomes" name="nomes" multiple="multiple">
-                {% for nome in nomes %}
-                    <option value="{{ nome }}" 
-                        {% if nome in selected_nomes %}selected{% endif %}>
+    <div class="main-content">
+        <div class="content-header">
+            <h1>Projeto de Visualização</h1>
+        </div>
+
+        <div class="filters-container">
+            <div>
+                <label for="nomes">Selecione o Nome:</label>
+                <select id="nomes" name="nomes" multiple="multiple">
+                    {% for nome in nomes %}
+                    <option value="{{ nome }}" {% if nome in selected_nomes %}selected{% endif %}>
                         {{ nome }}
                     </option>
-                {% endfor %}
-            </select>
-        </div>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <div class="selects-forms" id="meses-container">
-            <select id="meses" name="meses" multiple="multiple">
-                {% for mes in meses %}
-                    <option value="{{ mes }}" 
-                        {% if mes in selected_meses %}selected{% endif %}>
+            <div>
+                <label for="meses">Selecione o Mês:</label>
+                <select id="meses" name="meses" multiple="multiple">
+                    {% for mes in meses %}
+                    <option value="{{ mes }}" {% if mes in selected_meses %}selected{% endif %}>
                         {{ mes }}
                     </option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="selects-forms" id="presenca-container">
-            <select id="presenca" name="presenca" multiple="multiple">
-                <option value="">-- Escolha um Tipo de Presença --</option>
-                {% for presenca in presencas %}
-                    <option value="{{ presenca }}" 
-                        {% if presenca in selected_presenca %}selected{% endif %}>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="presenca">Selecione o Tipo de Presença:</label>
+                <select id="presenca" name="presenca" multiple="multiple">
+                    {% for presenca in presencas %}
+                    <option value="{{ presenca }}" {% if presenca in selected_presenca %}selected{% endif %}>
                         {{ presenca }}
                     </option>
-                {% endfor %}
-            </select>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
-               
-    </form>
 
-    <!-- Tabela de Resultados -->
-    <div id="table-container">
-        {% if data is not none %}
+        <div id="table-container">
+            {% if data is not none %}
             <table class="content-table">
                 <thead>
                     <tr>
@@ -126,17 +135,18 @@
                 </thead>
                 <tbody>
                     {% for index, row in data.iterrows() %}
-                        <tr>
-                            <td>{{ row['Nome'] }}</td>
-                            <td>{{ row['Presenca'] }}</td>
-                            <td>{{ row['Data'] }}</td>
-                        </tr>
+                    <tr>
+                        <td>{{ row['Nome'] }}</td>
+                        <td>{{ row['Presenca'] }}</td>
+                        <td>{{ row['Data'] }}</td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% else %}
+            {% else %}
             <p>Nenhum dado disponível para o filtro selecionado.</p>
-        {% endif %}
+            {% endif %}
+        </div>
     </div>
 </body>
 </html>
