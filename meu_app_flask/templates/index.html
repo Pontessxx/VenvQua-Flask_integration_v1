@@ -26,8 +26,19 @@
                 $('#filterForm').submit();
             });
 
+              // Verifica e aplica o tema salvo no LocalStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.classList.add(savedTheme);
+            }
+
+            // Alterna o tema e salva no LocalStorage
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
+                const currentTheme = document.body.classList.contains('dark-mode')
+                    ? 'dark-mode'
+                    : 'light-mode';
+                localStorage.setItem('theme', currentTheme);
             });
         });
     </script>
@@ -35,7 +46,6 @@
 <body>
     <div class="container">
         <div class="menu">
-            
             <form id="siteForm" action="/" method="POST">
                 <h2>Filtros de Navegação</h2>
                 <label for="site">Selecione o Site:</label>
@@ -97,7 +107,6 @@
                             {% endfor %}
                         </select>
                     </div>
-
                 </form>
             </div>
 
