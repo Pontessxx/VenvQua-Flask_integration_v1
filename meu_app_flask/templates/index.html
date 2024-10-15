@@ -9,126 +9,123 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <link rel="stylesheet" href="../static/styles.css">
     <script>
-        $(document).ready(function() {
-            // Inicializa o Select2
-            $('#nomes').select2({ placeholder: "Selecione Nomes"});
-            $('#meses').select2({ placeholder: "Selecione Meses"});
-            $('#presenca').select2({ placeholder: "Selecione tipo de Presença"});
+        $(document).ready(function () {
+            $('#nomes').select2({ placeholder: "Selecione Nomes" });
+            $('#meses').select2({ placeholder: "Selecione Meses" });
+            $('#presenca').select2({ placeholder: "Selecione tipo de Presença" });
 
-            // Atualiza o formulário automaticamente quando o site é selecionado
-            $('#site').on('change', function() {
+            $('#site').on('change', function () {
                 $('#siteForm').submit();
             });
 
-            // Atualiza o formulário automaticamente quando a empresa é selecionada
-            $('#empresa').on('change', function() {
+            $('#empresa').on('change', function () {
                 $('#siteForm').submit();
             });
 
-            // Atualiza o formulário automaticamente quando nomes, meses ou presença são selecionados
-            $('#nomes, #meses, #presenca').on('change', function() {
+            $('#nomes, #meses, #presenca').on('change', function () {
                 $('#filterForm').submit();
             });
 
-            $('#toggle-theme').on('click', function() {
+            $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
             });
         });
     </script>
 </head>
 <body>
-    <h1>Controle de Presença</h1>
-    <button id="toggle-theme">Alternar Tema</button>
-
-    <!-- Formulário 1 - Seleção de Site e Empresa -->
-    <form id="siteForm" action="/" method="POST">
-        <div>
-            <label for="site">Selecione o Site:</label>
-            <select id="site" name="site">
-                <option value="">-- Escolha um Site --</option>
-                {% for site in sites %}
-                    <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>
-                        {{ site }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        {% if empresas %}
-        <div>
-            <label for="empresa">Selecione a Empresa:</label>
-            <select id="empresa" name="empresa">
-                <option value="">-- Escolha uma Empresa --</option>
-                {% for empresa in empresas %}
-                    <option value="{{ empresa }}" {% if empresa == selected_empresa %}selected{% endif %}>
-                        {{ empresa }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endif %}
-    </form>
-
-    <!-- Formulário 2 - Filtros de Nomes, Mês e Presença -->
-    <form id="filterForm" action="/" method="POST">
-        <div>
-            <label for="nomes">Selecione Nomes:</label>
-            <select id="nomes" name="nomes" multiple="multiple">
-                {% for nome in nomes %}
-                    <option value="{{ nome }}" {% if nome in selected_nomes %}selected{% endif %}>
-                        {{ nome }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div>
-            <label for="meses">Selecione o Mês:</label>
-            <select id="meses" name="meses" multiple="multiple">
-                {% for mes in meses %}
-                    <option value="{{ mes }}" {% if mes in selected_meses %}selected{% endif %}>
-                        {{ mes }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-
-        <div>
-            <label for="presenca">Selecione o Tipo de Presença:</label>
-            <select id="presenca" name="presenca" multiple="multiple">
-                {% for presenca in presencas %}
-                    <option value="{{ presenca }}" {% if presenca in selected_presenca %}selected{% endif %}>
-                        {{ presenca }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-    </form>
-
-    <!-- Tabela de Resultados -->
-    <div id="table-container">
-        {% if data is not none %}
-            <table class="content-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Presença</th>
-                        <th>Data</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for index, row in data.iterrows() %}
-                        <tr>
-                            <td>{{ row['Nome'] }}</td>
-                            <td>{{ row['Presenca'] }}</td>
-                            <td>{{ row['Data'] }}</td>
-                        </tr>
+    <div class="container">
+        <div class="menu">
+            
+            <form id="siteForm" action="/" method="POST">
+                <h2>Filtros de Navegação</h2>
+                <label for="site">Selecione o Site:</label>
+                <select id="site" name="site">
+                    <option value="">-- Escolha um Site --</option>
+                    {% for site in sites %}
+                        <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>
+                            {{ site }}
+                        </option>
                     {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <p>Nenhum dado disponível para o filtro selecionado.</p>
-        {% endif %}
+                </select>
+
+                <label for="empresa">Selecione a Empresa:</label>
+                <select id="empresa" name="empresa">
+                    <option value="">-- Escolha uma Empresa --</option>
+                    {% for empresa in empresas %}
+                        <option value="{{ empresa }}" {% if empresa == selected_empresa %}selected{% endif %}>
+                            {{ empresa }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </form>
+            <button id="toggle-theme">Alternar Tema</button>
+        </div>
+
+        <div class="main-content">
+            <h1>Controle de Presença</h1>
+
+            <div class="filtros">
+                <form id="filterForm" action="/" method="POST">
+                    <div>
+                        <label for="nomes">Selecione Nomes:</label>
+                        <select id="nomes" name="nomes" multiple="multiple">
+                            {% for nome in nomes %}
+                                <option value="{{ nome }}" {% if nome in selected_nomes %}selected{% endif %}>
+                                    {{ nome }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label for="presenca">Selecione o Tipo de Presença:</label>
+                        <select id="presenca" name="presenca" multiple="multiple">
+                            {% for presenca in presencas %}
+                                <option value="{{ presenca }}" {% if presenca in selected_presenca %}selected{% endif %}>
+                                    {{ presenca }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="meses">Selecione o Mês:</label>
+                        <select id="meses" name="meses" multiple="multiple">
+                            {% for mes in meses %}
+                                <option value="{{ mes }}" {% if mes in selected_meses %}selected{% endif %}>
+                                    {{ mes }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </form>
+            </div>
+
+            <div id="table-container">
+                {% if data is not none %}
+                    <table class="content-table">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Presença</th>
+                                <th>Data</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index, row in data.iterrows() %}
+                                <tr>
+                                    <td>{{ row['Nome'] }}</td>
+                                    <td>{{ row['Presenca'] }}</td>
+                                    <td>{{ row['Data'] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>Nenhum dado disponível para o filtro selecionado.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 </body>
 </html>

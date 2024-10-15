@@ -1,20 +1,20 @@
 :root {
     /* Modo Claro */
-    --background-color: rgb(255, 255, 255); /* Cor de fundo */
-    --menu-background-color: rgb(240, 242, 246); /* Cor do menu */
-    --text-color: rgb(49, 51, 63); /* Cor do texto */
-    --table-border-color: #444; /* Cor das bordas da tabela */
-    --box-shadow-color: rgba(0, 0, 0, 0.5); /* Sombra */
+    --background-color: rgb(255, 255, 255);
+    --menu-background-color: rgb(240, 242, 246);
+    --text-color: rgb(49, 51, 63);
+    --table-border-color: #444;
+    --box-shadow-color: rgba(0, 0, 0, 0.5);
 }
 
 .dark-mode {
     /* Modo Escuro */
-    --background-color: rgb(14, 17, 23); /* Cor de fundo */
-    --menu-background-color: rgb(38, 39, 48); /* Cor do menu */
-    --text-color: rgb(255, 255, 255); /* Cor do texto */
+    --background-color: rgb(14, 17, 23);
+    --menu-background-color: rgb(38, 39, 48);
+    --text-color: rgb(255, 255, 255);
 }
 
-/* Aplicação das cores usando as variáveis */
+/* Aplicação das cores */
 body {
     background-color: var(--background-color);
     color: var(--text-color);
@@ -22,63 +22,85 @@ body {
     transition: background-color 0.3s, color 0.3s;
 }
 
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Menu Lateral */
 .menu {
     background-color: var(--menu-background-color);
-    padding: 20px;
     width: 15%;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 0;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     gap: 20px;
     transition: background-color 0.3s;
 }
 
-.main-content {
-    margin-left: 22%; /* Espaço para o menu lateral */
-    padding: 20px;
-}
-.menu #site,
-.menu #empresa {
-    padding: 1em;
-    border-radius: 1em;
-    margin-bottom: 2em;
+.menu button {
     background-color: var(--background-color);
     color: var(--text-color);
-    border-color: transparent;
-}
-
-.menu button{
-    background-color: var(--background-color);
-    color: var(--text-color);
-    border-color: transparent;
-    padding: 1em;
-    border-radius: 1em;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 1em;
 }
+
 .menu button:hover {
     background-color: var(--menu-background-color);
     transition: background-color 0.3s;
 }
+.menu form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.menu #site,
+.menu #empresa {
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: none;
+}
 
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Formulário de Filtros */
+.filtros {
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.filtros form {
+    display: flex;
+    justify-content: space-between;
+}
+.filtros form div{
+    display: flex;
+    flex-direction: column;
+}
+/* Tabela */
 #table-container {
-    max-height: 400px; /* Define uma altura máxima fixa para a tabela */
-    overflow-y: auto;  /* Habilita a rolagem vertical */
-    margin-top: 20px;  /* Espaço acima da tabela */
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
     box-shadow: 0 0 10px var(--box-shadow-color);
 }
 
 .content-table {
-    width: 100%; /* A tabela ocupará 100% do container */
+    width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Mantém as colunas com tamanho proporcional */
+    table-layout: fixed;
 }
 
 .content-table thead th {
-    position: sticky; /* Mantém o cabeçalho fixo no topo ao rolar */
+    position: sticky;
     top: 0;
     background-color: var(--menu-background-color);
     z-index: 1;
@@ -88,17 +110,17 @@ body {
     padding: 10px;
     border-bottom: 1px solid var(--table-border-color);
     text-align: left;
-    word-wrap: break-word; /* Quebra de linha automática nas células */
+    word-wrap: break-word;
 }
-/* Barra de rolagem padrão */
+
+/* Barra de rolagem */
 #table-container::-webkit-scrollbar {
-    width: 12px; /* Largura da barra de rolagem */
+    width: 12px;
 }
 
 #table-container::-webkit-scrollbar-thumb {
-    background-color: var(--menu-background-color); /* Cor do "polegar" (parte que se move) */
-    border-radius: 10px; /* Arredondamento */
-    border: 2px solid transparent; /* Espaço ao redor do polegar */
+    background-color: var(--menu-background-color);
+    border-radius: 10px;
     background-clip: padding-box;
 }
 
@@ -106,9 +128,7 @@ body {
     background-color: var(--menu-background-color);
 }
 
-/* Fundo da barra de rolagem */
 #table-container::-webkit-scrollbar-track {
-    background-color: var(--menu-background-color-light); /* Cor do fundo da barra */
+    background-color: var(--menu-background-color-light);
     border-radius: 10px;
 }
-
