@@ -24,7 +24,13 @@
             }
     
             // Evento ao mudar os filtros
-            $('#nomes, #meses, #presenca').on('change', function () {
+            $('#nomes').on('change', function () {
+                submitWithSiteEmpresa();
+            });
+            $('#mes').on('change', function () {
+                submitWithSiteEmpresa();
+            });
+            $('#presenca').on('change', function () {
                 submitWithSiteEmpresa();
             });
     

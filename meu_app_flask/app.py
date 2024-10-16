@@ -44,20 +44,31 @@ def check_data():
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    # Consultar sites
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
+    # Captura os valores dos filtros
     selected_site = request.form.get("site")
     selected_empresa = request.form.get("empresa")
     selected_nomes = request.form.getlist("nomes")
     selected_meses = request.form.getlist("meses")
     selected_presenca = request.form.getlist("presenca")
 
+    # Debug: Exibir os valores recebidos dos filtros
+    # print(f"Site: {selected_site}, Empresa: {selected_empresa}")
+    # print(f"Nomes selecionados: {selected_nomes}")
+    # print(f"Meses selecionados: {selected_meses}")
+    # print(f"Presença selecionada: {selected_presenca}")
+
     empresas = []
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
 
+    # Inicializa a tabela como vazia
     df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])
+
+    # Executa a consulta SQL somente se site e empresa forem selecionados
     if selected_site and selected_empresa:
         try:
             query = """
@@ -72,9 +83,21 @@ def index():
             cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
             rows = cursor.fetchall()
 
+            # Debug: Exibir as linhas recebidas da consulta
+            # print(f"Linhas recebidas: {rows}")
+
             if rows:
                 df = pd.DataFrame([list(row) for row in rows], columns=['Nome', 'Presenca', 'Data'])
                 df['Data'] = pd.to_datetime(df['Data']).dt.strftime('%d/%m/%Y')
+
+                # Aplicar filtros adicionais
+                if selected_nomes:
+                    df = df[df['Nome'].isin(selected_nomes)]
+                if selected_presenca:
+                    df = df[df['Presenca'].isin(selected_presenca)]
+                if selected_meses:
+                    # Filtrar pelo mês presente na data
+                    df = df[df['Data'].str.split('/').str[1].isin([str(meses_dict[mes]) for mes in selected_meses])]
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
 
@@ -88,7 +111,7 @@ def index():
         selected_site=selected_site,
         selected_empresa=selected_empresa,
         selected_nomes=selected_nomes,
-        selected_meses=selected_meses,
+       selected_meses=selected_meses,
         selected_presenca=selected_presenca,
         data=df
     )
