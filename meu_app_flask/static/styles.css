@@ -1,3 +1,4 @@
+
 :root {
     /* Modo Claro */
     --background-color: rgb(255, 255, 255);
@@ -88,7 +89,28 @@ body {
     display: flex;
     flex-direction: column;
 }
+.filtros form div label{
+    font-size: 12px;
+    margin-bottom: 1em;
+}
+.select2-container--default .select2-selection--multiple{
+    background: var(--menu-background-color);
+    border-color: transparent;
+}
+.select2-container--default ul {
+    background-color: var(--menu-background-color);
+    border-color: transparent;
+}
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    margin: 5px;
+    background-color: rgb(255, 75, 75);
+    border: none;
+    color: var(--text-color);
+}
 
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
+    color: var(--text-color);
+}
 /* Tabela */
 #table-container {
     max-height: 400px;
@@ -101,6 +123,7 @@ body {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
+    border-radius: 15px;
 }
 
 .content-table thead th {
@@ -116,7 +139,13 @@ body {
     text-align: left;
     word-wrap: break-word;
 }
+span.select2-dropdown.select2-dropdown--below{
+    border: none;
+}
 
+.select2-container--default .select2-results__option--highlighted[aria-selected]{
+    background-color: rgb(255, 75, 75);
+}
 /* Barra de rolagem */
 #table-container::-webkit-scrollbar {
     width: 12px;
