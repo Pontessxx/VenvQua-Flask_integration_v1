@@ -15,10 +15,9 @@ conn = pyodbc.connect(conn_str)
 
 # Dicionário para os meses em português
 meses_dict = {
-    "January": "Janeiro", "February": "Fevereiro", "March": "Março",
-    "April": "Abril", "May": "Maio", "June": "Junho",
-    "July": "Julho", "August": "Agosto", "September": "Setembro",
-    "October": "Outubro", "November": "Novembro", "December": "Dezembro"
+    "January": "01", "February": "02", "March": "03", "April": "04",
+    "May": "05", "June": "06", "July": "07", "August": "08",
+    "September": "09", "October": "10", "November": "11", "December": "12"
 }
 
 @app.route('/check_data', methods=['POST'])
@@ -55,12 +54,6 @@ def index():
     selected_meses = request.form.getlist("meses")
     selected_presenca = request.form.getlist("presenca")
 
-    # Debug: Exibir os valores recebidos dos filtros
-    # print(f"Site: {selected_site}, Empresa: {selected_empresa}")
-    # print(f"Nomes selecionados: {selected_nomes}")
-    # print(f"Meses selecionados: {selected_meses}")
-    # print(f"Presença selecionada: {selected_presenca}")
-
     empresas = []
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
@@ -83,12 +76,12 @@ def index():
             cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
             rows = cursor.fetchall()
 
-            # Debug: Exibir as linhas recebidas da consulta
-            # print(f"Linhas recebidas: {rows}")
-
+            # Verificar se há dados retornados
             if rows:
                 df = pd.DataFrame([list(row) for row in rows], columns=['Nome', 'Presenca', 'Data'])
-                df['Data'] = pd.to_datetime(df['Data']).dt.strftime('%d/%m/%Y')
+                
+                # Converte a coluna Data para datetime
+                df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')
 
                 # Aplicar filtros adicionais
                 if selected_nomes:
@@ -96,8 +89,16 @@ def index():
                 if selected_presenca:
                     df = df[df['Presenca'].isin(selected_presenca)]
                 if selected_meses:
-                    # Filtrar pelo mês presente na data
-                    df = df[df['Data'].str.split('/').str[1].isin([str(meses_dict[mes]) for mes in selected_meses])]
+                    # Filtrar pelo mês presente na data, comparando apenas o mês
+                    selected_meses_numeric = [meses_dict[mes] for mes in selected_meses]
+                    df = df[df['Data'].dt.strftime('%m').isin(selected_meses_numeric)]
+
+                # Formatar a data para exibição
+                df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
+
+                # Debug: Exibir o DataFrame após o filtro de meses
+                print(f"DataFrame após filtro de meses: {df[['Nome', 'Data']].to_string()}")
+                
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
 
@@ -106,12 +107,12 @@ def index():
         sites=sites,
         empresas=[e[1] for e in empresas],
         nomes=pd.read_sql("SELECT DISTINCT Nome FROM Nome", conn)['Nome'].tolist(),
-        meses=meses_dict.values(),
+        meses=meses_dict.keys(),  # Envia os nomes dos meses em português
         presencas=pd.read_sql("SELECT DISTINCT Presenca FROM Presenca", conn)['Presenca'].tolist(),
         selected_site=selected_site,
         selected_empresa=selected_empresa,
         selected_nomes=selected_nomes,
-       selected_meses=selected_meses,
+        selected_meses=selected_meses,
         selected_presenca=selected_presenca,
         data=df
     )
