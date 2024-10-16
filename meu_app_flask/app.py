@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import pandas as pd
 import pyodbc
+import json
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -96,8 +97,16 @@ def index():
                 # Formatar a data para exibição
                 df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
-                # Debug: Exibir o DataFrame após o filtro de meses
-                # print(f"DataFrame após filtro de meses: {df[['Nome', 'Data']].to_string()}")
+                # Agrupar por tipo de presença e contar a frequência
+                df_presenca = df.groupby('Presenca').size().reset_index(name='counts')
+                labels = df_presenca['Presenca'].tolist()  # Tipos de presença
+                values = df_presenca['counts'].tolist()    # Contagens de cada presença
+
+                # Dados formatados para o gráfico de pizza
+                pie_chart_data = json.dumps({
+                    'labels': labels,
+                    'values': values
+                })
                 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
@@ -114,7 +123,8 @@ def index():
         selected_nomes=selected_nomes,
         selected_meses=selected_meses,
         selected_presenca=selected_presenca,
-        data=df
+        data=df,
+        pie_chart_data=pie_chart_data
     )
 
 def get_site_id(site_name):
