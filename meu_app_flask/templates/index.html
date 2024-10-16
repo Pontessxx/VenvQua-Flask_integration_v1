@@ -120,7 +120,7 @@
                 {% endif %}
             </div>
             <div>
-                <canvas id="pieChart"></canvas>
+                <canvas id="pieChart" style="max-width: 400px; max-height: 400px;"></canvas>
             </div>
             
         </div>
@@ -131,7 +131,7 @@
             $('#nomes').select2({ placeholder: "Escolha um nome" });
             $('#meses').select2({ placeholder: "Escolha um mês" });
             $('#presenca').select2({ placeholder: "Escolha uma presença" });
-
+    
             // Função para submeter o formulário de filtros preservando site e empresa
             function submitWithSiteEmpresa() {
                 const site = $('#site').val();
@@ -140,17 +140,17 @@
                 $('#hiddenEmpresa').val(empresa);
                 $('#filterForm').submit();
             }
-
+    
             // Evento ao mudar os filtros
             $('#nomes, #meses, #presenca').on('change', function () {
                 submitWithSiteEmpresa();
             });
-
+    
             // Evento ao mudar site ou empresa
             $('#site, #empresa').on('change', function () {
                 $('#siteForm').submit();
             });
-
+    
             // Alterna o tema e salva no LocalStorage
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
@@ -160,33 +160,36 @@
                 localStorage.setItem('theme', currentTheme);
             });
         });
+    
+        // Dicionário de cores diretamente no JavaScript
+        var colorMarkerMap = {
+            'OK': '#494949',
+            'FALTA': '#FF5733',
+            'ATESTADO': '#FFC300',
+            'CURSO': '#8E44AD',
+            'FÉRIAS': '#a5a5a5',
+            'ALPHAVILLE': '#5D578E'
+        };
+    
+        var chartData = {{ pie_chart_data | safe }};
+    
+        // Definir cores para cada label, se não encontrar usa cor padrão
+        var backgroundColors = chartData.labels.map(function(label) {
+            return colorMarkerMap[label] || '#999999';  // Fallback para cor padrão
+        });
+    
+        // Criar o gráfico de pizza usando Chart.js
         var ctx = document.getElementById('pieChart').getContext('2d');
-        var chartData = {{ pie_chart_data | safe }};  // Receber os dados do Flask
-
         var pieChart = new Chart(ctx, {
             type: 'pie',
             data: {
                 labels: chartData.labels,  // Labels para os tipos de presença
                 datasets: [{
-                    label: chartData.labels,
+                    label: 'Distribuição de Presença',
                     data: chartData.values,  // Valores das contagens de cada tipo
-                    backgroundColor: [
-                        'rgba(255, 99, 132, 0.2)',
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(255, 206, 86, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(153, 102, 255, 0.2)',
-                        'rgba(255, 159, 64, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(255, 99, 132, 1)',
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(255, 206, 86, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(153, 102, 255, 1)',
-                        'rgba(255, 159, 64, 1)'
-                    ],
-                    borderWidth: 1
+                    backgroundColor: backgroundColors,  // Cores das fatias
+                    borderColor: '#ffffff',
+                    borderWidth: 2
                 }]
             },
             options: {
