@@ -97,7 +97,7 @@ def index():
                 df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
                 # Debug: Exibir o DataFrame após o filtro de meses
-                print(f"DataFrame após filtro de meses: {df[['Nome', 'Data']].to_string()}")
+                # print(f"DataFrame após filtro de meses: {df[['Nome', 'Data']].to_string()}")
                 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
