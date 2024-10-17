@@ -13,13 +13,31 @@
 
     <!-- Executa o tema antes de renderizar a página -->
     <script>
-        // Aplicar o tema imediatamente ao carregar o HTML, antes da renderização
-        (function() {
+            (function() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
-                document.documentElement.classList.add(savedTheme);  // Aplica o tema no root element
+                document.body.classList.add(savedTheme);
             }
         })();
+
+        // Função para alternar o tema e salvar no localStorage
+        function toggleTheme() {
+            // Verifica se o tema escuro está ativo
+            const darkModeActive = document.body.classList.contains('dark-mode');
+
+            if (darkModeActive) {
+                // Remove o tema escuro e salva "light-mode" no localStorage
+                document.body.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light-mode');
+            } else {
+                // Adiciona o tema escuro e salva "dark-mode" no localStorage
+                document.body.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+            }
+        }
+
+        // Evento para o botão de alternância de tema
+        document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
     </script>
 
 </head>

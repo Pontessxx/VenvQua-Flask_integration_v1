@@ -71,6 +71,10 @@ def index():
     # Inicializa a tabela como vazia
     df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])
 
+    # Variáveis para os gráficos
+    pie_chart_data = {}
+    scatter_chart_data = {}
+
     # Executa a consulta SQL somente se site e empresa forem selecionados
     if selected_site and selected_empresa:
         try:
@@ -125,6 +129,12 @@ def index():
                 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
+
+    # Verifique se `pie_chart_data` e `scatter_chart_data` são definidos
+    if not pie_chart_data:
+        pie_chart_data = json.dumps({'labels': [], 'values': []})
+    if not scatter_chart_data:
+        scatter_chart_data = json.dumps({'x': [], 'y': [], 'values': []})
 
     return render_template(
         "index.html",
