@@ -92,7 +92,6 @@
                         </select>
                     </div>
                 </form>
-                
             </div>
 
             <div id="table-container">
@@ -119,8 +118,17 @@
                     <p>Nenhum dado disponível para o filtro selecionado.</p>
                 {% endif %}
             </div>
+
+            <!-- Gráfico de Pizza -->
             <div>
+                <h3>Distribuição de Presença</h3>
                 <canvas id="pieChart" style="max-width: 400px; max-height: 400px;"></canvas>
+            </div>
+
+            <!-- Gráfico de Dispersão -->
+            <div>
+                <h3>Gráfico de Dispersão (Data x Nomes)</h3>
+                <canvas id="scatterChart" style="max-width: 600px; max-height: 400px;"></canvas>
             </div>
             
         </div>
@@ -160,36 +168,31 @@
                 localStorage.setItem('theme', currentTheme);
             });
         });
+
+        // Gráfico de Pizza
+        var pieChartData = {{ pie_chart_data | safe }};
+        var colorMarkerMap = {{ color_marker_map | safe }};
     
-        // Dicionário de cores diretamente no JavaScript
-        var colorMarkerMap = {
-            'OK': '#494949',
-            'FALTA': '#FF5733',
-            'ATESTADO': '#FFC300',
-            'CURSO': '#8E44AD',
-            'FÉRIAS': '#a5a5a5',
-            'ALPHAVILLE': '#5D578E'
-        };
-    
-        var chartData = {{ pie_chart_data | safe }};
-    
-        // Definir cores para cada label, se não encontrar usa cor padrão
-        var backgroundColors = chartData.labels.map(function(label) {
-            return colorMarkerMap[label] || '#999999';  // Fallback para cor padrão
+        var backgroundColors = pieChartData.labels.map(function(label) {
+            if (colorMarkerMap[label]) {
+                return colorMarkerMap[label].cor;
+            } else {
+                return '#999999';
+            }
         });
-    
-        // Criar o gráfico de pizza usando Chart.js
+
         var ctx = document.getElementById('pieChart').getContext('2d');
         var pieChart = new Chart(ctx, {
-            type: 'pie',
+            type: 'doughnut',
             data: {
-                labels: chartData.labels,  // Labels para os tipos de presença
+                labels: pieChartData.labels,
                 datasets: [{
                     label: 'Distribuição de Presença',
-                    data: chartData.values,  // Valores das contagens de cada tipo
-                    backgroundColor: backgroundColors,  // Cores das fatias
+                    data: pieChartData.values,
+                    backgroundColor: backgroundColors,
                     borderColor: '#ffffff',
-                    borderWidth: 2
+                    borderWidth: 2,
+                    hoverOffset: 20
                 }]
             },
             options: {
@@ -205,6 +208,51 @@
                 }
             }
         });
+
+        // Gráfico de Dispersão
+        var scatterChartData = {{ scatter_chart_data | safe }};
+        var scatterCtx = document.getElementById('scatterChart').getContext('2d');
+
+        var scatterData = scatterChartData.x.map(function(date, index) {
+            return { x: date, y: scatterChartData.y[index], v: scatterChartData.values[index] };
+        });
+
+        var scatterChart = new Chart(scatterCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [{
+                    label: 'Presença por Data',
+                    data: scatterData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    pointRadius: 5
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'day',
+                            tooltipFormat: 'DD/MM/YYYY'
+                        },
+                        title: {
+                            display: true,
+                            text: 'Data'
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Nomes'
+                        }
+                    }
+                }
+            }
+        });
     </script>
+    
 </body>
 </html>

@@ -20,6 +20,15 @@ meses_dict = {
     "May": "05", "June": "06", "July": "07", "August": "08",
     "September": "09", "October": "10", "November": "11", "December": "12"
 }
+color_marker_map = {
+    'OK': {'cor': '#494949', 'marker': 'circle'},
+    'FALTA': {'cor': '#FF5733', 'marker': 'x'},
+    'ATESTADO': {'cor': '#FFC300', 'marker': 'diamond'},
+    'CURSO': {'cor': '#8E44AD', 'marker': 'star'},
+    'FÉRIAS': {'cor': '#a5a5a5', 'marker': 'square'},
+    'ALPHAVILLE': {'cor': '#5D578E', 'marker': 'square'},
+}
+
 
 @app.route('/check_data', methods=['POST'])
 def check_data():
@@ -97,12 +106,18 @@ def index():
                 # Formatar a data para exibição
                 df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
-                # Agrupar por tipo de presença e contar a frequência
+                # Dados para gráfico de dispersão
+                scatter_chart_data = json.dumps({
+                    'x': df['Data'].tolist(),  # Datas no eixo x
+                    'y': df['Nome'].tolist(),  # Nomes no eixo y
+                    'values': df['Presenca'].tolist()  # Valores (Presença) para os pontos
+                })
+
+                # Dados formatados para o gráfico de pizza
                 df_presenca = df.groupby('Presenca').size().reset_index(name='counts')
                 labels = df_presenca['Presenca'].tolist()  # Tipos de presença
                 values = df_presenca['counts'].tolist()    # Contagens de cada presença
 
-                # Dados formatados para o gráfico de pizza
                 pie_chart_data = json.dumps({
                     'labels': labels,
                     'values': values
@@ -116,7 +131,7 @@ def index():
         sites=sites,
         empresas=[e[1] for e in empresas],
         nomes=pd.read_sql("SELECT DISTINCT Nome FROM Nome", conn)['Nome'].tolist(),
-        meses=meses_dict.keys(),  # Envia os nomes dos meses em português
+        meses=meses_dict.keys(),
         presencas=pd.read_sql("SELECT DISTINCT Presenca FROM Presenca", conn)['Presenca'].tolist(),
         selected_site=selected_site,
         selected_empresa=selected_empresa,
@@ -124,8 +139,11 @@ def index():
         selected_meses=selected_meses,
         selected_presenca=selected_presenca,
         data=df,
-        pie_chart_data=pie_chart_data
+        pie_chart_data=pie_chart_data,
+        scatter_chart_data=scatter_chart_data,
+        color_marker_map=color_marker_map,
     )
+
 
 def get_site_id(site_name):
     cursor = conn.cursor()
