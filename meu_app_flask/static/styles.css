@@ -37,7 +37,12 @@ body {
     flex-direction: column;
     gap: 20px;
     transition: background-color 0.3s;
+    height: 100vh;  /* Garante que o menu ocupe 100% da altura da janela */
+    position: fixed;  /* Mantém o menu fixo enquanto rola a página */
+    top: 0;
+    bottom: 0;
 }
+
 
 .menu button {
     background-color: var(--background-color);
@@ -70,7 +75,9 @@ body {
 .main-content {
     flex: 1;
     padding: 20px;
+    margin-left: 20%;  /* Ajusta o conteúdo para não sobrepor o menu fixo */
 }
+
 
 /* Formulário de Filtros */
 .filtros {
@@ -159,4 +166,9 @@ span.select2-dropdown.select2-dropdown--below{
 #table-container::-webkit-scrollbar-track {
     background-color: var(--menu-background-color-light);
     border-radius: 10px;
+}
+.graficos{
+    display: flex;
+    gap: 20px;
+    width: 100%;
 }
