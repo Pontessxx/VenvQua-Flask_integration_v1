@@ -9,6 +9,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="../static/styles.css">
 
     <!-- Executa o tema antes de renderizar a página -->
@@ -146,7 +147,7 @@
             <!-- Gráfico de Dispersão -->
             <div>
                 <h3>Gráfico de Dispersão (Data x Nomes)</h3>
-                <canvas id="scatterChart" style="max-width: 600px; max-height: 400px;"></canvas>
+                <div id="scatter-chart"></div>
             </div>
             
         </div>
@@ -229,47 +230,7 @@
 
         // Gráfico de Dispersão
         var scatterChartData = {{ scatter_chart_data | safe }};
-        var scatterCtx = document.getElementById('scatterChart').getContext('2d');
-
-        var scatterData = scatterChartData.x.map(function(date, index) {
-            return { x: date, y: scatterChartData.y[index], v: scatterChartData.values[index] };
-        });
-
-        var scatterChart = new Chart(scatterCtx, {
-            type: 'scatter',
-            data: {
-                datasets: [{
-                    label: 'Presença por Data',
-                    data: scatterData,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
-                    pointRadius: 5
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'day',
-                            tooltipFormat: 'DD/MM/YYYY'
-                        },
-                        title: {
-                            display: true,
-                            text: 'Data'
-                        }
-                    },
-                    y: {
-                        title: {
-                            display: true,
-                            text: 'Nomes'
-                        }
-                    }
-                }
-            }
-        });
+        Plotly.newPlot('scatter-chart', scatterChartData.data, scatterChartData.layout);
     </script>
     
 </body>

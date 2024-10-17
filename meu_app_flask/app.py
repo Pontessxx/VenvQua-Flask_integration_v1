@@ -3,6 +3,8 @@ import pandas as pd
 import pyodbc
 import json
 import warnings
+import plotly.graph_objs as go
+import plotly
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__)
@@ -20,36 +22,15 @@ meses_dict = {
     "May": "05", "June": "06", "July": "07", "August": "08",
     "September": "09", "October": "10", "November": "11", "December": "12"
 }
+
+# Dicionário de cores e marcadores para cada tipo de presença
 color_marker_map = {
     'OK': {'cor': '#494949', 'marker': 'circle'},
     'FALTA': {'cor': '#FF5733', 'marker': 'x'},
     'ATESTADO': {'cor': '#FFC300', 'marker': 'diamond'},
     'CURSO': {'cor': '#8E44AD', 'marker': 'star'},
     'FÉRIAS': {'cor': '#a5a5a5', 'marker': 'square'},
-    'ALPHAVILLE': {'cor': '#5D578E', 'marker': 'square'},
 }
-
-
-@app.route('/check_data', methods=['POST'])
-def check_data():
-    site = request.form.get('site')
-    empresa = request.form.get('empresa')
-
-    query = """
-    SELECT COUNT(*) 
-    FROM Site_Empresa 
-    WHERE id_Sites = (SELECT id_Site FROM Site WHERE Sites = ?) 
-      AND id_Empresas = (SELECT id_Empresa FROM Empresa WHERE Empresas = ?) 
-      AND Ativo = True
-    """
-    cursor = conn.cursor()
-    cursor.execute(query, (site, empresa))
-    result = cursor.fetchone()
-
-    if result and result[0] > 0:
-        return jsonify({'hasData': True})
-    else:
-        return jsonify({'hasData': False})
 
 @app.route("/", methods=["GET", "POST"])
 def index():
@@ -103,21 +84,38 @@ def index():
                 if selected_presenca:
                     df = df[df['Presenca'].isin(selected_presenca)]
                 if selected_meses:
-                    # Filtrar pelo mês presente na data, comparando apenas o mês
                     selected_meses_numeric = [meses_dict[mes] for mes in selected_meses]
                     df = df[df['Data'].dt.strftime('%m').isin(selected_meses_numeric)]
 
                 # Formatar a data para exibição
                 df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
-                # Dados para gráfico de dispersão
-                scatter_chart_data = json.dumps({
-                    'x': df['Data'].tolist(),  # Datas no eixo x
-                    'y': df['Nome'].tolist(),  # Nomes no eixo y
-                    'values': df['Presenca'].tolist()  # Valores (Presença) para os pontos
-                })
+                # Gráfico de dispersão
+                fig_dispersao = go.Figure()
 
-                # Dados formatados para o gráfico de pizza
+                for presenca, info in color_marker_map.items():
+                    df_tipo = df[df['Presenca'].str.upper() == presenca]
+                    if not df_tipo.empty:
+                        fig_dispersao.add_trace(go.Scatter(
+                            x=df_tipo['Data'],
+                            y=df_tipo['Nome'],
+                            mode='markers',
+                            marker=dict(color=info['cor'], symbol=info['marker'], size=10),
+                            name=presenca
+                        ))
+
+                # Customizando o layout do gráfico de dispersão
+                fig_dispersao.update_layout(
+                    title=f'Presença no período',
+                    xaxis=dict(showgrid=False, gridcolor='lightgray'),
+                    yaxis=dict(showgrid=False, gridcolor='lightgray'),
+                    font=dict(color='black')
+                )
+
+                # Converte o gráfico de dispersão para JSON para renderizar no HTML
+                scatter_chart_data = json.dumps(fig_dispersao, cls=plotly.utils.PlotlyJSONEncoder)
+
+                # Gráfico de Pizza (usando Chart.js)
                 df_presenca = df.groupby('Presenca').size().reset_index(name='counts')
                 labels = df_presenca['Presenca'].tolist()  # Tipos de presença
                 values = df_presenca['counts'].tolist()    # Contagens de cada presença
@@ -129,12 +127,9 @@ def index():
                 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
-
-    # Verifique se `pie_chart_data` e `scatter_chart_data` são definidos
-    if not pie_chart_data:
-        pie_chart_data = json.dumps({'labels': [], 'values': []})
-    if not scatter_chart_data:
-        scatter_chart_data = json.dumps({'x': [], 'y': [], 'values': []})
+    else:
+        pie_chart_data = None
+        scatter_chart_data = None
 
     return render_template(
         "index.html",
@@ -153,7 +148,6 @@ def index():
         scatter_chart_data=scatter_chart_data,
         color_marker_map=color_marker_map,
     )
-
 
 def get_site_id(site_name):
     cursor = conn.cursor()
