@@ -14,32 +14,33 @@
 
     <!-- Executa o tema antes de renderizar a página -->
     <script>
-            (function() {
+        // Executa o tema antes de renderizar a página
+        (function() {
             const savedTheme = localStorage.getItem('theme');
             if (savedTheme) {
-                document.body.classList.add(savedTheme);
+                document.body.classList.add(savedTheme); // Aplica o tema salvo no body
+            } else {
+                // Define um tema padrão se nenhum tema estiver salvo
+                localStorage.setItem('theme', 'light-mode');
             }
         })();
-
+    
         // Função para alternar o tema e salvar no localStorage
         function toggleTheme() {
-            // Verifica se o tema escuro está ativo
             const darkModeActive = document.body.classList.contains('dark-mode');
-
             if (darkModeActive) {
-                // Remove o tema escuro e salva "light-mode" no localStorage
                 document.body.classList.remove('dark-mode');
                 localStorage.setItem('theme', 'light-mode');
             } else {
-                // Adiciona o tema escuro e salva "dark-mode" no localStorage
                 document.body.classList.add('dark-mode');
                 localStorage.setItem('theme', 'dark-mode');
             }
         }
-
+    
         // Evento para o botão de alternância de tema
         document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
     </script>
+    
 
 </head>
 <body>
@@ -183,7 +184,6 @@
             $('#site, #empresa').on('change', function () {
                 $('#siteForm').submit();
             });
-    
             // Alterna o tema e salva no LocalStorage
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
@@ -192,6 +192,17 @@
                     : 'light-mode';
                 localStorage.setItem('theme', currentTheme);
             });
+
+            // Executa o tema antes de renderizar a página
+            (function() {
+                const savedTheme = localStorage.getItem('theme');
+                if (savedTheme) {
+                    document.body.classList.add(savedTheme); // Aplica o tema salvo no body
+                } else {
+                    // Define um tema padrão se nenhum tema estiver salvo
+                    localStorage.setItem('theme', 'light-mode');
+                }
+            })();
         });
 
         // Gráfico de Pizza
