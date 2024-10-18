@@ -1,10 +1,11 @@
 
+
 :root {
     /* Modo Claro */
     --background-color: rgb(255, 255, 255);
     --menu-background-color: rgb(240, 242, 246);
     --text-color: rgb(49, 51, 63);
-    --table-border-color: #444;
+    --table-border-color: rgb(219, 220, 222);
     --box-shadow-color: rgba(0, 0, 0, 0.5);
 }
 
@@ -13,6 +14,7 @@
     --background-color: rgb(14, 17, 23);
     --menu-background-color: rgb(38, 39, 48);
     --text-color: rgb(255, 255, 255);
+    --table-border-color: rgb(54, 55, 63);
 }
 
 /* Aplicação das cores */
@@ -123,7 +125,7 @@ body {
     max-height: 400px;
     overflow-y: auto;
     margin-top: 20px;
-    box-shadow: 0 0 10px var(--box-shadow-color);
+    /* box-shadow: 0 0 10px var(--box-shadow-color); */
 }
 
 .content-table {
@@ -171,4 +173,14 @@ span.select2-dropdown.select2-dropdown--below{
     display: flex;
     gap: 20px;
     width: 100%;
+}
+
+.legenda_graficos .legenda_grafico_span_ok span{
+    color: #494949;
+}
+.legenda_graficos .legenda_grafico_span_falta span{
+    color: #FF5733;
+}
+.legenda_graficos .legenda_grafico_span_atestado span{
+    color: #FFC300;
 }

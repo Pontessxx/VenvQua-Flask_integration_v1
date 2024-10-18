@@ -5,9 +5,25 @@ import json
 import warnings
 import plotly.graph_objs as go
 import plotly
+
+# import click
+# import logging
+
+# log = logging.getLogger('werkzeug')
+# log.setLevel(logging.ERROR)
+
+# def secho(text, file=None, nl=None, err=None, color=None, **styles):
+#     pass
+
+# def echo(text, file=None, nl=None, err=None, color=None, **styles):
+#     pass
+
+# click.echo = echo
+# click.secho = secho
+
 warnings.filterwarnings('ignore')
 
-app = Flask(__name__)
+app = Flask(__name__) 
 
 # Configuração da conexão com o banco de dados Access
 conn_str = (
@@ -109,7 +125,7 @@ def index():
                     title=f'Presença no período',
                     xaxis=dict(showgrid=False, gridcolor='lightgray'),
                     yaxis=dict(showgrid=False, gridcolor='lightgray'),
-                    font=dict(color='black'),
+                    font=dict(color='#999999'),
                     plot_bgcolor='rgba(0,0,0,0)',  # Remover o fundo da área de plotagem
                     paper_bgcolor='rgba(0,0,0,0)',  # Remover o fundo ao redor do gráfico
                     hovermode='closest'  # Exibir o valor mais próximo ao passar o mouse
@@ -178,4 +194,5 @@ def get_empresa_id(empresa_nome, empresas):
     return None
 
 if __name__ == "__main__":
+    # print('Runing on http://127.0.0.1/5000')
     app.run(debug=True)
