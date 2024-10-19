@@ -125,15 +125,15 @@ def index():
                     title=f'Presença no período',
                     xaxis=dict(showgrid=False, gridcolor='lightgray'),
                     yaxis=dict(showgrid=False, gridcolor='lightgray'),
-                    font=dict(color='#999999'),
+                    font=dict(color='#000000'),  # Cor padrão (será alterada via JavaScript)
                     plot_bgcolor='rgba(0,0,0,0)',  # Remover o fundo da área de plotagem
                     paper_bgcolor='rgba(0,0,0,0)',  # Remover o fundo ao redor do gráfico
-                    hovermode='closest'  # Exibir o valor mais próximo ao passar o mouse
+                    hovermode='closest'
                 )
-
 
                 # Converte o gráfico de dispersão para JSON para renderizar no HTML
                 scatter_chart_data = json.dumps(fig_dispersao, cls=plotly.utils.PlotlyJSONEncoder)
+
 
                 # Gráfico de Pizza (usando Chart.js)
                 df_presenca = df.groupby('Presenca').size().reset_index(name='counts')
