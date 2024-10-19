@@ -169,11 +169,35 @@ span.select2-dropdown.select2-dropdown--below{
     background-color: var(--menu-background-color-light);
     border-radius: 10px;
 }
-.graficos{
+/* Gráficos: Estilo padrão para telas maiores */
+.graficos {
     display: flex;
     gap: 20px;
     width: 100%;
+    justify-content: space-around; /* Distribui os gráficos uniformemente */
+    flex-wrap: wrap; /* Permite que os gráficos quebrem em múltiplas linhas, se necessário */
 }
+
+#pie-chart, #stacked-bar-chart {
+    width: 100%;
+    max-width: 500px; /* Define a largura máxima dos gráficos */
+    height: 400px; /* Define uma altura fixa para os gráficos */
+}
+
+/* Faz o gráfico de dispersão ocupar toda a largura */
+#scatter-chart {
+    width: 100%;
+    height: 400px; /* Define uma altura fixa */
+    max-width: 100%; /* Faz o gráfico ocupar toda a largura disponível */
+}
+
+.legenda_graficos{
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    margin: 3em 0em 3em 0;
+}
+
 
 .legenda_graficos .legenda_grafico_span_ok span{
     color: #494949;
@@ -199,4 +223,34 @@ span.select2-dropdown.select2-dropdown--below{
 *::-webkit-scrollbar-track {
     background-color: var(--menu-background-color-light);
     border-radius: 10px;
+}
+
+/* Ajustes para telas menores (768px) */
+@media screen and (max-width: 768px) {
+    .graficos {
+        flex-direction: column; /* Empilha os gráficos verticalmente */
+        align-items: center; /* Centraliza os gráficos */
+    }
+
+    #pie-chart, #stacked-bar-chart, #scatter-chart {
+        max-width: 100%; /* Faz os gráficos ocuparem a largura total disponível */
+        height: auto; /* Ajusta a altura automaticamente para telas menores */
+    }
+}
+
+/* Ajustes para telas médias (1064px) */
+@media screen and (max-width: 1064px) {
+    .graficos {
+        flex-direction: row; /* Mantém os gráficos em linha para telas médias */
+        justify-content: space-between; /* Garante espaçamento adequado entre os gráficos */
+    }
+
+    #pie-chart, #stacked-bar-chart {
+        height: 350px; /* Reduz um pouco a altura dos gráficos */
+    }
+
+    #scatter-chart {
+        height: 400px; /* Mantém a altura do gráfico de dispersão */
+        max-width: 100%; /* Garante que ele ocupe a largura total da seção */
+    }
 }
