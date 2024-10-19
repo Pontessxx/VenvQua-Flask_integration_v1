@@ -13,35 +13,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="../static/styles.css">
-
-    <!-- Executa o tema antes de renderizar a página -->
-    <script>
-        // Executa o tema antes de renderizar a página
-        (function() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme) {
-                document.body.classList.add(savedTheme); // Aplica o tema salvo no body
-            } else {
-                // Define um tema padrão se nenhum tema estiver salvo
-                localStorage.setItem('theme', 'light-mode');
-            }
-        })();
-    
-        // Função para alternar o tema e salvar no localStorage
-        function toggleTheme() {
-            const darkModeActive = document.body.classList.contains('dark-mode');
-            if (darkModeActive) {
-                document.body.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light-mode');
-            } else {
-                document.body.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark-mode');
-            }
-        }
-    
-        // Evento para o botão de alternância de tema
-        document.getElementById('toggle-theme').addEventListener('click', toggleTheme);
-    </script>
     
 
 </head>
