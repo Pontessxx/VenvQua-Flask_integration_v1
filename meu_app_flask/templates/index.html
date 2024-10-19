@@ -14,7 +14,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link rel="stylesheet" href="../static/styles.css">
     
-
+    
 </head>
 <body>
     <div class="container">
@@ -116,8 +116,8 @@
                 <!-- Gráfico de Pizza -->
                 <div class="graficos">
                     <div>
-                        <h3>Distribuição de Presença</h3>
-                        <canvas id="pieChart" style="max-width: 400px; max-height: 400px; margin: 10px;"></canvas>
+                        <!-- <h3>Distribuição de Presença</h3> -->
+                        <div id="pie-chart"></div>
                     </div>
                     <div class="legenda_graficos">
 
@@ -139,14 +139,14 @@
                         </div>
                     </div>
                     <div>
-                        <h3>Gráfico de Barras Empilhadas (Presenças)</h3>
+                        <!-- <h3>Gráfico de Barras Empilhadas (Presenças)</h3> -->
                         <div id="stacked-bar-chart"></div>
                     </div>
                 </div>
                 
                 <!-- Gráfico de Dispersão -->
                 <div>
-                    <h3>Gráfico de Dispersão (Data x Nomes)</h3>
+                    <!-- <h3>Gráfico de Dispersão (Data x Nomes)</h3> -->
                     <div id="scatter-chart"></div>
                 </div>
             </div>
@@ -156,18 +156,19 @@
     </div>
 
     <script>
-        $(document).ready(function () {
+         $(document).ready(function () {
             // Função para atualizar as cores dos gráficos com base no tema
             function updateChartColors(theme) {
                 let textColor = theme === 'dark-mode' ? '#ffffff' : '#000000';
                 
                 // Atualiza os gráficos Plotly, mas somente após eles serem carregados
-                if (document.getElementById('stacked-bar-chart') && document.getElementById('scatter-chart')) {
+                if (document.getElementById('stacked-bar-chart') && document.getElementById('scatter-chart') && document.getElementById('pie-chart')) {
                     Plotly.relayout('stacked-bar-chart', {'font.color': textColor});
                     Plotly.relayout('scatter-chart', {'font.color': textColor});
+                    Plotly.relayout('pie-chart', {'font.color': textColor});
                 }
             }
-    
+
             // Verifica o tema salvo no localStorage e aplica as cores no carregamento da página
             (function() {
                 const savedTheme = localStorage.getItem('theme');
@@ -177,22 +178,30 @@
                     localStorage.setItem('theme', 'light-mode');
                 }
             })();
-    
+
             // Renderiza os gráficos após definir a cor inicial
             var stackedBarChartData = {{ stacked_bar_chart_data | safe }};
             var scatterChartData = {{ scatter_chart_data | safe }};
+            var pieChartData = {{ pie_chart_data | safe }};
+            
             Plotly.newPlot('stacked-bar-chart', stackedBarChartData.data, stackedBarChartData.layout)
                 .then(function() {
                     const currentTheme = localStorage.getItem('theme') || 'light-mode';
                     updateChartColors(currentTheme);  // Aplica as cores corretas nos gráficos após renderizá-los
                 });
-    
+
             Plotly.newPlot('scatter-chart', scatterChartData.data, scatterChartData.layout)
                 .then(function() {
                     const currentTheme = localStorage.getItem('theme') || 'light-mode';
                     updateChartColors(currentTheme);  // Aplica as cores corretas nos gráficos após renderizá-los
                 });
-    
+
+            Plotly.newPlot('pie-chart', pieChartData.data, pieChartData.layout)
+                .then(function() {
+                    const currentTheme = localStorage.getItem('theme') || 'light-mode';
+                    updateChartColors(currentTheme);  // Aplica as cores corretas nos gráficos após renderizá-los
+                });
+
             // Alternar tema entre claro e escuro ao clicar no botão
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
@@ -229,51 +238,13 @@
            
         });
 
-        // Gráfico de Pizza
-        var pieChartData = {{ pie_chart_data | safe }};
-        var colorMarkerMap = {{ color_marker_map | safe }};
-    
-        var backgroundColors = pieChartData.labels.map(function(label) {
-            if (colorMarkerMap[label]) {
-                return colorMarkerMap[label].cor;
-            } else {
-                return '#999999';
-            }
-        });
-
-        var ctx = document.getElementById('pieChart').getContext('2d');
-        var pieChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: pieChartData.labels,
-                datasets: [{
-                    label: '',
-                    data: pieChartData.values,
-                    backgroundColor: backgroundColors,
-                    borderColor: '#ffffff',
-                    borderWidth: 2,
-                    hoverOffset: 20
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: 'Distribuição de Presença'
-                    }
-                }
-            }
-        });
-
         // Gráfico de Dispersão
         var scatterChartData = {{ scatter_chart_data | safe }};
         Plotly.newPlot('scatter-chart', scatterChartData.data, scatterChartData.layout);
         var stackedBarChartData = {{ stacked_bar_chart_data | safe }};
         Plotly.newPlot('stacked-bar-chart', stackedBarChartData.data, stackedBarChartData.layout);
+        var pieChartData = {{ pie_chart_data | safe }};
+        Plotly.newPlot('pie-chart', pieChartData.data, pieChartData.layout);
     </script>
     
 </body>

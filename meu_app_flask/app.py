@@ -68,9 +68,10 @@ def index():
     # Inicializa a tabela como vazia
     df = pd.DataFrame(columns=['Nome', 'Presenca', 'Data'])
 
-    # Variáveis para os gráficos
-    pie_chart_data = {}
-    scatter_chart_data = {}
+    # Variáveis para os gráficos (inicializando com None)
+    pie_chart_data = None
+    scatter_chart_data = None
+    stacked_bar_chart_data = None
 
     # Executa a consulta SQL somente se site e empresa forem selecionados
     if selected_site and selected_empresa:
@@ -122,7 +123,13 @@ def index():
 
                 # Customizando o layout do gráfico de dispersão
                 fig_dispersao.update_layout(
-                    title=f'Presença no período',
+                    title={
+                        'text': "Gráfico de disperssão de Presenças",
+                        'x': 0.5,  # Centraliza o título
+                        'xanchor': 'center',
+                        'yanchor': 'top',
+                        'font': {'size': 24}  # Altera o tamanho da fonte do título
+                    },
                     xaxis=dict(showgrid=False, gridcolor='lightgray'),
                     yaxis=dict(showgrid=False, gridcolor='lightgray'),
                     font=dict(color='#000000'),  # Cor padrão (será alterada via JavaScript)
@@ -134,17 +141,34 @@ def index():
                 # Converte o gráfico de dispersão para JSON para renderizar no HTML
                 scatter_chart_data = json.dumps(fig_dispersao, cls=plotly.utils.PlotlyJSONEncoder)
 
-
-                # Gráfico de Pizza (usando Chart.js)
+                # Gráfico de Pizza (usando Plotly)
                 df_presenca = df.groupby('Presenca').size().reset_index(name='counts')
-                labels = df_presenca['Presenca'].tolist()  # Tipos de presença
+                labels = df_presenca['Presenca'].str.upper().tolist()  # Tipos de presença em maiúsculas
                 values = df_presenca['counts'].tolist()    # Contagens de cada presença
 
-                pie_chart_data = json.dumps({
-                    'labels': labels,
-                    'values': values
-                })
-                
+                # Mapeamento das cores para o gráfico de pizza
+                colors = [color_marker_map[label]['cor'] if label in color_marker_map else '#999999' for label in labels]
+
+                # Criação do gráfico de pizza com Plotly
+                fig_pie = go.Figure(data=[go.Pie(labels=labels, values=values, textinfo='label+percent', hole=0.3, marker=dict(colors=colors))])
+
+                # Definir layout do gráfico de pizza
+                fig_pie.update_layout(
+                    title={
+                        'text': "Distribuição de Presença",
+                        'x': 0.5,  # Centraliza o título
+                        'xanchor': 'center',
+                        'yanchor': 'top',
+                        'font': {'size': 24}  # Altera o tamanho da fonte do título
+                    },
+                    showlegend=True,
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)'
+                )
+
+                # Converte o gráfico de pizza para JSON
+                pie_chart_data = json.dumps(fig_pie, cls=plotly.utils.PlotlyJSONEncoder)
+
                 df['Presenca'] = df['Presenca'].str.upper()
                 df_agrupado = df.groupby(['Nome', 'Presenca']).size().reset_index(name='counts')
                 barras = []
@@ -162,7 +186,13 @@ def index():
                     barras.append(barra)
 
                 layout = go.Layout(
-                    title="Gráfico de Barras Empilhadas de Presenças",
+                    title = {
+                        'text': "Nomes x Presença",
+                        'x': 0.5,  # Centraliza o título
+                        'xanchor': 'center',
+                        'yanchor': 'top',
+                        'font': {'size': 24}  # Altera o tamanho da fonte do título
+                    },
                     barmode='stack',
                     xaxis=dict(title='Nome', showgrid=False),
                     yaxis=dict(title='Contagem de Presença', showgrid=False),
@@ -173,12 +203,9 @@ def index():
 
                 fig_barras_empilhadas = go.Figure(data=barras, layout=layout)
                 stacked_bar_chart_data = json.dumps(fig_barras_empilhadas, cls=plotly.utils.PlotlyJSONEncoder)
-                
+
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
-    else:
-        pie_chart_data = None
-        scatter_chart_data = None
 
     return render_template(
         "index.html",
@@ -198,6 +225,7 @@ def index():
         stacked_bar_chart_data=stacked_bar_chart_data,
         color_marker_map=color_marker_map,
     )
+
 
 def get_site_id(site_name):
     cursor = conn.cursor()
