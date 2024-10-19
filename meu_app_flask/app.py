@@ -145,11 +145,10 @@ def index():
                     'values': values
                 })
                 
-                df['Presenca'] = df['Presenca'].str.upper()  # Certifique-se de que a coluna 'Presenca' está em maiúsculas
+                df['Presenca'] = df['Presenca'].str.upper()
                 df_agrupado = df.groupby(['Nome', 'Presenca']).size().reset_index(name='counts')
                 barras = []
-                nomes = df_agrupado['Nome'].unique()
-                
+
                 for presenca in df_agrupado['Presenca'].unique():
                     df_presenca = df_agrupado[df_agrupado['Presenca'] == presenca]
                     barra = go.Bar(
@@ -161,14 +160,15 @@ def index():
                         textposition='inside'
                     )
                     barras.append(barra)
-                
+
                 layout = go.Layout(
                     title="Gráfico de Barras Empilhadas de Presenças",
-                    barmode='stack',  # Modo empilhado
+                    barmode='stack',
                     xaxis=dict(title='Nome', showgrid=False),
                     yaxis=dict(title='Contagem de Presença', showgrid=False),
-                    plot_bgcolor='rgba(0,0,0,0)',  # Remover o fundo da área de plotagem
-                    paper_bgcolor='rgba(0,0,0,0)',  # Remover o fundo ao redor do gráfico
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    font=dict(color='#000000')  # Cor padrão (será alterada via JavaScript)
                 )
 
                 fig_barras_empilhadas = go.Figure(data=barras, layout=layout)

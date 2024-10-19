@@ -16,24 +16,38 @@
     
     <script>
         $(document).ready(function () {
+            // Alternar tema entre claro e escuro
             $('#toggle-theme').on('click', function () {
                 document.body.classList.toggle('dark-mode');
                 const currentTheme = document.body.classList.contains('dark-mode')
                     ? 'dark-mode'
                     : 'light-mode';
                 localStorage.setItem('theme', currentTheme);
+                updateChartColors(currentTheme);  // Atualiza as cores do gráfico
             });
-
+    
             // Executa o tema antes de renderizar a página
             (function() {
                 const savedTheme = localStorage.getItem('theme');
                 if (savedTheme) {
                     document.body.classList.add(savedTheme); // Aplica o tema salvo no body
+                    updateChartColors(savedTheme);  // Aplica as cores corretas no gráfico
                 } else {
-                    // Define um tema padrão se nenhum tema estiver salvo
                     localStorage.setItem('theme', 'light-mode');
+                    updateChartColors('light-mode');  // Cor padrão se nenhum tema estiver salvo
                 }
             })();
+    
+            function updateChartColors(theme) {
+                let textColor = theme === 'dark-mode' ? '#ffffff' : '#000000';
+                
+                // Atualiza os gráficos Plotly
+                Plotly.relayout('stacked-bar-chart', {'font.color': textColor});
+            }
+    
+            // Renderiza o gráfico de barras empilhadas
+            var stackedBarChartData = {{ stacked_bar_chart_data | safe }};
+            Plotly.newPlot('stacked-bar-chart', stackedBarChartData.data, stackedBarChartData.layout);
         });
     </script>
 </head>
