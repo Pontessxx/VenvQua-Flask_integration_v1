@@ -145,6 +145,35 @@ def index():
                     'values': values
                 })
                 
+                df['Presenca'] = df['Presenca'].str.upper()  # Certifique-se de que a coluna 'Presenca' está em maiúsculas
+                df_agrupado = df.groupby(['Nome', 'Presenca']).size().reset_index(name='counts')
+                barras = []
+                nomes = df_agrupado['Nome'].unique()
+                
+                for presenca in df_agrupado['Presenca'].unique():
+                    df_presenca = df_agrupado[df_agrupado['Presenca'] == presenca]
+                    barra = go.Bar(
+                        x=df_presenca['Nome'],
+                        y=df_presenca['counts'],
+                        name=presenca,
+                        marker=dict(color=color_marker_map[presenca]['cor']),
+                        text=df_presenca['counts'],
+                        textposition='inside'
+                    )
+                    barras.append(barra)
+                
+                layout = go.Layout(
+                    title="Gráfico de Barras Empilhadas de Presenças",
+                    barmode='stack',  # Modo empilhado
+                    xaxis=dict(title='Nome', showgrid=False),
+                    yaxis=dict(title='Contagem de Presença', showgrid=False),
+                    plot_bgcolor='rgba(0,0,0,0)',  # Remover o fundo da área de plotagem
+                    paper_bgcolor='rgba(0,0,0,0)',  # Remover o fundo ao redor do gráfico
+                )
+
+                fig_barras_empilhadas = go.Figure(data=barras, layout=layout)
+                stacked_bar_chart_data = json.dumps(fig_barras_empilhadas, cls=plotly.utils.PlotlyJSONEncoder)
+                
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
     else:
@@ -166,6 +195,7 @@ def index():
         data=df,
         pie_chart_data=pie_chart_data,
         scatter_chart_data=scatter_chart_data,
+        stacked_bar_chart_data=stacked_bar_chart_data,
         color_marker_map=color_marker_map,
     )
 
