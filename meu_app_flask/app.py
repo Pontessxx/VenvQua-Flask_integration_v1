@@ -203,6 +203,13 @@ def index():
 
                 fig_barras_empilhadas = go.Figure(data=barras, layout=layout)
                 stacked_bar_chart_data = json.dumps(fig_barras_empilhadas, cls=plotly.utils.PlotlyJSONEncoder)
+                
+                total_dias_registrados = df['Data'].nunique()  # Contagem de dias únicos
+
+                # Sum up the counts for OK, FALTAS, ATESTADO
+                total_ok = df[df['Presenca'].str.upper() == 'OK'].shape[0]  # Contagem de OK
+                total_faltas = df[df['Presenca'].str.upper() == 'FALTA'].shape[0]  # Contagem de FALTAS
+                total_atestados = df[df['Presenca'].str.upper() == 'ATESTADO'].shape[0]  # Contagem de ATESTADOS
 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
@@ -223,6 +230,10 @@ def index():
         pie_chart_data=pie_chart_data,
         scatter_chart_data=scatter_chart_data,
         stacked_bar_chart_data=stacked_bar_chart_data,
+        total_dias_registrados=total_dias_registrados,
+        total_ok=total_ok,
+        total_faltas=total_faltas,
+        total_atestados=total_atestados,
         color_marker_map=color_marker_map,
     )
 

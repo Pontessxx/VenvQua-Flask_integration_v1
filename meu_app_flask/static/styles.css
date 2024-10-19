@@ -208,7 +208,9 @@ span.select2-dropdown.select2-dropdown--below{
 .legenda_graficos .legenda_grafico_span_atestado span{
     color: #FFC300;
 }
-
+.legenda_graficos .numeros{
+    font-size: 2rem;
+}
 
 
 *::-webkit-scrollbar {
