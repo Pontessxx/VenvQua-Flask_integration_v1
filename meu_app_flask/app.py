@@ -72,7 +72,10 @@ def index():
     pie_chart_data = None
     scatter_chart_data = None
     stacked_bar_chart_data = None
-
+    total_dias_registrados = 0
+    total_ok = 0
+    total_faltas = 0
+    total_atestados = 0
     # Executa a consulta SQL somente se site e empresa forem selecionados
     if selected_site and selected_empresa:
         try:
