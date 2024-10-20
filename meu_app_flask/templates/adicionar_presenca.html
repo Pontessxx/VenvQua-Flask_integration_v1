@@ -112,6 +112,27 @@
         </form>
 
 
+        <!-- Quarto Formulário para Desativar Nomes -->
+        <form id="formInativarNomes" action="/inativar-nome" method="POST">
+            <h2>Desativar Nome</h2>
+
+            <!-- Seleção de Nomes Ativos -->
+            <label for="nomes_ativos">Selecione o Nome Ativo:</label>
+            <select id="nomes_ativos" name="nome_ativo">
+                <option value="">-- Escolha um Nome Ativo --</option>
+                {% for nome in nomes %}
+                    <option value="{{ nome }}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Campo oculto para siteempresa_id -->
+            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+
+            <!-- Botão para desativar o nome -->
+            <button type="submit">Desativar Nome</button>
+        </form>
+
+
     </div>
 
 

@@ -368,6 +368,31 @@ def reativar_nome():
 
     return redirect(url_for('adiciona_presenca'))
 
+@app.route('/inativar-nome', methods=['POST'])
+def inativar_nome():
+    nome_ativo = request.form.get("nome_ativo").strip()
+    siteempresa_id = request.form.get("siteempresa_id")  # Captura o siteempresa_id
+
+    # Verifique os valores recebidos
+    print(f"Nome ativo: {nome_ativo}, SiteEmpresa ID: {siteempresa_id}")
+
+    if not nome_ativo:
+        flash("Nenhum nome selecionado para desativar!", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        cursor = conn.cursor()
+        # Marcar o nome como inativo
+        cursor.execute("UPDATE Nome SET Ativo = False WHERE Nome = ? AND id_SiteEmpresa = ?",
+                       (nome_ativo, siteempresa_id))
+        conn.commit()
+        flash(f"Nome {nome_ativo} desativado com sucesso!", "success")
+    except Exception as e:
+        print(f"Erro ao desativar nome: {e}")  # Saída para depuração
+        flash(f"Erro ao desativar nome: {str(e)}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
 
     
 if __name__ == "__main__":
