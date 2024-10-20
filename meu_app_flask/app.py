@@ -5,7 +5,7 @@ import json
 import warnings
 import plotly.graph_objs as go
 import plotly
-
+from datetime import datetime
 # import click
 # import logging
 
@@ -265,22 +265,62 @@ def get_empresa_id(empresa_nome, empresas):
             return empresa[0]
     return None
 
+def get_siteempresa_id(site_id, empresa_id):
+    """Obtém o ID_SiteEmpresas com base no site e empresa selecionados, considerando apenas empresas ativas."""
+    cursor = conn.cursor()
+    query = """SELECT id_SiteEmpresa FROM Site_Empresa WHERE id_Sites = ? AND id_Empresas = ? AND Ativo = True"""
+    cursor.execute(query, (site_id, empresa_id))
+    result = cursor.fetchone()
+    return result[0] if result else None
+
+def get_nomes(siteempresa_id, ativos=True):
+    """Obtém os nomes associados ao ID_SiteEmpresas, filtrando por ativos se solicitado."""
+    cursor = conn.cursor()
+    query = "SELECT Nome.Nome FROM Nome WHERE id_SiteEmpresa = ?"
+
+    if ativos:
+        query += " AND Ativo = True"
+    else:
+        query += " AND Ativo = False"
+
+    cursor.execute(query, (siteempresa_id,))
+    nomes = [row[0] for row in cursor.fetchall()]
+    return nomes
+
 @app.route('/adicionar-presenca', methods=['GET', 'POST'])
 def adiciona_presenca():
-    # Consultar sites
+    # Consultar sites e presenças
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
+    presenca_opcoes = pd.read_sql("SELECT DISTINCT Presenca FROM Presenca", conn)['Presenca'].tolist()
 
-    # Captura os valores dos filtros
-    selected_site = request.form.get("site")
-    selected_empresa = request.form.get("empresa")
-    # selected_nomes = request.form.getlist("nomes")
-    # selected_meses = request.form.getlist("meses")
-    # selected_presenca = request.form.getlist("presenca")
-
+    # Captura os valores dos filtros e converte para maiúsculas
+    selected_site = request.form.get("site").upper() if request.form.get("site") else None
+    selected_empresa = request.form.get("empresa").upper() if request.form.get("empresa") else None
+    selected_nomes = [nome.upper() for nome in request.form.getlist("nomes")] if request.form.getlist("nomes") else []
+    selected_presenca = request.form.get("presenca").upper() if request.form.get("presenca") else None
+    
+    siteempresa_id = None
+    nomes = []
     empresas = []
+    
+    # Obter ano e mês atuais
+    current_year = datetime.now().year
+    current_month = datetime.now().strftime("%m")  # Formato de dois dígitos para o mês
+    
+    # Gerar a lista de dias do mês
+    dias = [str(i).zfill(2) for i in range(1, 32)]  # Gera a lista de dias de 01 a 31
+    
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
+    
+    if selected_site and selected_empresa:
+        site_id = get_site_id(selected_site)
+        empresa_id = get_empresa_id(selected_empresa, empresas)
+        siteempresa_id = get_siteempresa_id(site_id, empresa_id)
+        if siteempresa_id:
+            nomes = get_nomes(siteempresa_id, ativos=True)
+    
     # Renderiza o template HTML e passa as variáveis necessárias
     return render_template(
         "adicionar_presenca.html",
@@ -288,6 +328,12 @@ def adiciona_presenca():
         empresas=[e[1] for e in empresas],
         selected_site=selected_site,
         selected_empresa=selected_empresa,
+        nomes=nomes,  # Passa os nomes obtidos
+        presenca_opcoes=presenca_opcoes,  # Passa as opções de presença
+        dias=dias,  # Passa os dias do mês
+        current_month=current_month,  # Passa o mês atual
+        current_year=current_year,  # Passa o ano atual
+        meses_dict=meses_dict,  # Dicionário de meses em português
         color_marker_map=color_marker_map,
     )
 

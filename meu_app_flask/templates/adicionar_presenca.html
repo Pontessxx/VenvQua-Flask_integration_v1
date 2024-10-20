@@ -11,32 +11,85 @@
     <link rel="stylesheet" href="../static/styles.css">
 </head>
 <body>
-    <h1>Adicionar Presença</h1>
-    <button onclick="voltarParaDashboard()">Voltar_ao_Dahs</button>
-    <button id="toggle-theme">Alternar Tema</button>
+    <div class="menu">
+        <h2>Adicionar Presença</h2>
+        <form id="siteFormAdiciona" action="/adicionar-presenca" method="POST">
+            <label for="site">Selecione o Site:</label>
+            <select id="site" name="site">
+                <option value="">-- Escolha um Site --</option>
+                {% for site in sites %}
+                    <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>
+                        {{ site }}
+                    </option>
+                {% endfor %}
+            </select>
+    
+            <label for="empresa">Selecione a Empresa:</label>
+            <select id="empresa" name="empresa">
+                <option value="">-- Escolha uma Empresa --</option>
+                {% for empresa in empresas %}
+                    <option value="{{ empresa }}" {% if empresa == selected_empresa %}selected{% endif %}>
+                        {{ empresa }}
+                    </option>
+                {% endfor %}
+            </select>
+        </form>
+        <button onclick="voltarParaDashboard()">Voltar_ao_Dahs</button>
+        <button id="toggle-theme">Alternar Tema</button>
+    </div>
+    <div class="main-content">
 
-    <form id="siteFormAdiciona" action="/adicionar-presenca" method="POST">
-        <h2>Filtros de Navegação</h2>
-        <label for="site">Selecione o Site:</label>
-        <select id="site" name="site">
-            <option value="">-- Escolha um Site --</option>
-            {% for site in sites %}
-                <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>
-                    {{ site }}
-                </option>
+        <!-- Segundo Formulário -->
+        <h1>Controle de Presença</h1>
+        <form id="formAdicionarPresenca" action="/adicionar-presenca" method="POST">
+    
+            <label for="nomes">Selecione o(s) Nome(s):</label><br>
+            {% for nome in nomes %}
+                <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
+                <label for="nome_{{ loop.index }}">{{ nome }}</label><br>
             {% endfor %}
-        </select>
+    
+            <!-- Seleção de Presença -->
+            <label for="presenca">Presença:</label>
+            <select id="presenca" name="presenca">
+                <option value="">-- Escolha um Tipo de Presença --</option>
+                {% for presenca in presenca_opcoes %}
+                    <option value="{{ presenca }}">{{ presenca }}</option>
+                {% endfor %}
+            </select>
+    
+            <!-- Seleção de Dia -->
+            <label for="dia">Dia:</label>
+            <select id="dia" name="dia">
+                <option value="">-- Escolha o Dia --</option>
+                {% for dia in dias %}
+                    <option value="{{ dia }}">{{ dia }}</option>
+                {% endfor %}
+            </select>
+    
+            <!-- Seleção de Mês -->
+            <label for="mes">Mês:</label>
+            <select id="mes" name="mes">
+                {% for mes_nome, mes_numero in meses_dict.items() %}
+                    <option value="{{ mes_numero }}" {% if mes_numero == current_month %}selected{% endif %}>
+                        {{ mes_nome }}
+                    </option>
+                {% endfor %}
+            </select>
+    
+            <!-- Seleção de Ano -->
+            <label for="ano">Ano:</label>
+            <select id="ano" name="ano">
+                <option value="{{ current_year }}" selected>{{ current_year }}</option>
+            </select>
+    
+            <!-- Botões -->
+            <button type="submit">Adicionar Presença</button>
+            <button type="button" onclick="deletarPresenca()">Deletar Presença</button>
+        </form>
+    </div>
 
-        <label for="empresa">Selecione a Empresa:</label>
-        <select id="empresa" name="empresa">
-            <option value="">-- Escolha uma Empresa --</option>
-            {% for empresa in empresas %}
-                <option value="{{ empresa }}" {% if empresa == selected_empresa %}selected{% endif %}>
-                    {{ empresa }}
-                </option>
-            {% endfor %}
-        </select>
-    </form>
+
     <script>
         $(document).ready(function () {
             // Função para submeter o formulário de filtros preservando site e empresa
