@@ -41,6 +41,7 @@
                     {% endfor %}
                 </select>
             </form>
+            <button id="add_presenca" onclick="goToAddPresenca()">Adicionar Presença</button>
             <button id="toggle-theme">Alternar Tema</button>
         </div>
 
@@ -246,6 +247,22 @@
         Plotly.newPlot('stacked-bar-chart', stackedBarChartData.data, stackedBarChartData.layout);
         var pieChartData = {{ pie_chart_data | safe }};
         Plotly.newPlot('pie-chart', pieChartData.data, pieChartData.layout);
+        function goToAddPresenca() {
+            const site = document.getElementById('site').value;
+            const empresa = document.getElementById('empresa').value;
+            
+            // Verifica se os valores foram selecionados
+            if (site && empresa) {
+                // Salva os valores no sessionStorage
+                sessionStorage.setItem('selected_site', site);
+                sessionStorage.setItem('selected_empresa', empresa);
+                
+                // Redireciona para a página de adicionar presença
+                window.location.href = "/adicionar-presenca";
+            } else {
+                alert('Por favor, selecione o site e a empresa antes de continuar.');
+            }
+        }
     </script>
     
 </body>

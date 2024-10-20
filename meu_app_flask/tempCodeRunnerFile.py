@@ -241,6 +241,34 @@ def index():
     )
 
 
+@app.route("/adicionar-presenca", methods=["GET", "POST"])
+def adicionar_presenca():
+    # Se for POST, processa o formulário
+    if request.method == "POST":
+        # Lógica para adicionar presença no banco de dados...
+        pass
+    
+    # Carregar os valores do site e da empresa selecionados
+    selected_site = request.args.get("site", None)
+    selected_empresa = request.args.get("empresa", None)
+
+    # Recarregar as listas de sites e empresas
+    query_sites = "SELECT DISTINCT Sites FROM Site"
+    sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
+
+    empresas = []
+    if selected_site:
+        empresas = get_empresas(get_site_id(selected_site))
+
+    return render_template(
+        "adicionar_presenca.html",
+        sites=sites,
+        empresas=[e[1] for e in empresas],
+        selected_site=selected_site,
+        selected_empresa=selected_empresa
+    )
+
+
 def get_site_id(site_name):
     cursor = conn.cursor()
     cursor.execute("SELECT id_Site FROM Site WHERE Sites = ?", (site_name,))
@@ -265,15 +293,6 @@ def get_empresa_id(empresa_nome, empresas):
             return empresa[0]
     return None
 
-@app.route('/adicionar-presenca', methods=['GET', 'POST'])
-def adiciona_presenca():
-    if request.method == 'POST':
-        selected_site = request.form.get('site')
-        selected_empresa = request.form.get('empresa')
-        # Continue o processamento com os valores de site e empresa
-    return render_template('adicionar_presenca.html', site=selected_site, empresa=selected_empresa)
-
-    
 if __name__ == "__main__":
     # print('Runing on http://127.0.0.1/5000')
     app.run(debug=True)
