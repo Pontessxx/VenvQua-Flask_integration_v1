@@ -79,6 +79,17 @@ body {
     padding: 20px;
     margin-left: 20%;  /* Ajusta o conteúdo para não sobrepor o menu fixo */
 }
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1em;
+    gap: 10px;  /* Espaçamento entre os itens */
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+}
 
 
 /* Formulário de Filtros */

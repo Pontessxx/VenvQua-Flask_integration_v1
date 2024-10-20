@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 import pandas as pd
 import pyodbc
 import json
@@ -6,6 +6,7 @@ import warnings
 import plotly.graph_objs as go
 import plotly
 from datetime import datetime
+import os
 # import click
 # import logging
 
@@ -24,7 +25,7 @@ from datetime import datetime
 warnings.filterwarnings('ignore')
 
 app = Flask(__name__) 
-
+app.secret_key = "testeunique"
 # Configuração da conexão com o banco de dados Access
 conn_str = (
     r"DRIVER={Microsoft Access Driver (*.mdb, *.accdb)};"
@@ -302,6 +303,7 @@ def adiciona_presenca():
     
     siteempresa_id = None
     nomes = []
+    nomes_desativados = []
     empresas = []
     
     # Obter ano e mês atuais
@@ -320,6 +322,7 @@ def adiciona_presenca():
         siteempresa_id = get_siteempresa_id(site_id, empresa_id)
         if siteempresa_id:
             nomes = get_nomes(siteempresa_id, ativos=True)
+            nomes_desativados = get_nomes(siteempresa_id, ativos=False)  # Buscar nomes desativados
     
     # Renderiza o template HTML e passa as variáveis necessárias
     return render_template(
@@ -328,7 +331,9 @@ def adiciona_presenca():
         empresas=[e[1] for e in empresas],
         selected_site=selected_site,
         selected_empresa=selected_empresa,
+        siteempresa_id=siteempresa_id,
         nomes=nomes,  # Passa os nomes obtidos
+        nomes_desativados=nomes_desativados,  # Passa os nomes desativados
         presenca_opcoes=presenca_opcoes,  # Passa as opções de presença
         dias=dias,  # Passa os dias do mês
         current_month=current_month,  # Passa o mês atual
@@ -336,6 +341,32 @@ def adiciona_presenca():
         meses_dict=meses_dict,  # Dicionário de meses em português
         color_marker_map=color_marker_map,
     )
+
+
+# __________________ ROTAS PARA FLUXO _________________
+@app.route('/reativar-nome', methods=['POST'])
+def reativar_nome():
+    nome_desativado = request.form.get("nome_desativado").strip()
+    siteempresa_id = request.form.get("siteempresa_id")  # Captura o siteempresa_id
+
+    # Verifique os valores recebidos
+    print(f"Nome desativado: {nome_desativado}, SiteEmpresa ID: {siteempresa_id}")
+
+    if not nome_desativado:
+        flash("Nenhum nome selecionado para reativar!", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("UPDATE Nome SET Ativo = True WHERE Nome = ? AND id_SiteEmpresa = ?",
+                       (nome_desativado, siteempresa_id))
+        conn.commit()
+        flash(f"Nome {nome_desativado} reativado com sucesso!", "success")
+    except Exception as e:
+        print(f"Erro ao reativar nome: {e}")  # Saída para depuração
+        flash(f"Erro ao reativar nome: {str(e)}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
 
 
     

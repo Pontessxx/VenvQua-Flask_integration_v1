@@ -43,11 +43,14 @@
         <h1>Controle de Presença</h1>
         <form id="formAdicionarPresenca" action="/adicionar-presenca" method="POST">
     
-            <label for="nomes">Selecione o(s) Nome(s):</label><br>
-            {% for nome in nomes %}
-                <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
-                <label for="nome_{{ loop.index }}">{{ nome }}</label><br>
-            {% endfor %}
+            <div class="checkbox-container">
+                {% for nome in nomes %}
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
+                        <label for="nome_{{ loop.index }}">{{ nome }}</label>
+                    </div>
+                {% endfor %}
+            </div>
     
             <!-- Seleção de Presença -->
             <label for="presenca">Presença:</label>
@@ -87,8 +90,33 @@
             <button type="submit">Adicionar Presença</button>
             <button type="button" onclick="deletarPresenca()">Deletar Presença</button>
         </form>
+
+        <!-- Terceiro Formulário para Reativar Nomes -->
+        <form id="formReativarNomes" action="/reativar-nome" method="POST">
+            <h2>Reativar Nome</h2>
+
+            <!-- Seleção de Nomes Desativados -->
+            <label for="nomes_desativados">Selecione o Nome Desativado:</label>
+            <select id="nomes_desativados" name="nome_desativado">
+                <option value="">-- Escolha um Nome Desativado --</option>
+                {% for nome in nomes_desativados %}
+                    <option value="{{ nome }}">{{ nome }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Campo oculto para siteempresa_id -->
+            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+
+            <!-- Botão para reativar o nome -->
+            <button type="submit">Reativar Nome</button>
+        </form>
+
+
     </div>
 
+
+
+    
 
     <script>
         $(document).ready(function () {
