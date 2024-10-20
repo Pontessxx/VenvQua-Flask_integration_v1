@@ -271,15 +271,26 @@ def adiciona_presenca():
     query_sites = "SELECT DISTINCT Sites FROM Site"
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
-    empresas = get_empresas(get_site_id("CTI"))
-    
-    
+    # Captura os valores dos filtros
+    selected_site = request.form.get("site")
+    selected_empresa = request.form.get("empresa")
+    # selected_nomes = request.form.getlist("nomes")
+    # selected_meses = request.form.getlist("meses")
+    # selected_presenca = request.form.getlist("presenca")
+
+    empresas = []
+    if selected_site:
+        empresas = get_empresas(get_site_id(selected_site))
+    # Renderiza o template HTML e passa as variáveis necessárias
     return render_template(
         "adicionar_presenca.html",
         sites=sites,
         empresas=[e[1] for e in empresas],
-
+        selected_site=selected_site,
+        selected_empresa=selected_empresa,
+        color_marker_map=color_marker_map,
     )
+
 
     
 if __name__ == "__main__":
