@@ -12,20 +12,15 @@
 </head>
 <body>
     <h1>Adicionar Presença</h1>
-    <p>Site selecionado: <span id="siteSelecionado"></span></p>
+    <p>Site selecionado: {{ sites }}</p>
+    <p>Site selecionado: {{ empresas }}</p>
+
     <p>Empresa selecionada: <span id="empresaSelecionada"></span></p>
     <button onclick="voltarParaDashboard()">Voltar_ao_Dahs</button>
     <button id="toggle-theme">Alternar Tema</button>
 
     
     <script>
-        // Recupera os valores do sessionStorage
-        const siteSelecionado = sessionStorage.getItem('selected_site');
-        const empresaSelecionada = sessionStorage.getItem('selected_empresa');
-
-        // Exibe os valores na página
-        document.getElementById('siteSelecionado').textContent = siteSelecionado ? siteSelecionado : 'Nenhum site selecionado';
-        document.getElementById('empresaSelecionada').textContent = empresaSelecionada ? empresaSelecionada : 'Nenhuma empresa selecionada';
     
         // Verifica o tema salvo no localStorage e aplica as cores
         (function() {

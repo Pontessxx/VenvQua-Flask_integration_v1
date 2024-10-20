@@ -267,11 +267,19 @@ def get_empresa_id(empresa_nome, empresas):
 
 @app.route('/adicionar-presenca', methods=['GET', 'POST'])
 def adiciona_presenca():
-    if request.method == 'POST':
-        selected_site = request.form.get('site')
-        selected_empresa = request.form.get('empresa')
-        # Continue o processamento com os valores de site e empresa
-    return render_template('adicionar_presenca.html', site=selected_site, empresa=selected_empresa)
+    # Consultar sites
+    query_sites = "SELECT DISTINCT Sites FROM Site"
+    sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
+
+    empresas = get_empresas(get_site_id("CTI"))
+    
+    
+    return render_template(
+        "adicionar_presenca.html",
+        sites=sites,
+        empresas=[e[1] for e in empresas],
+
+    )
 
     
 if __name__ == "__main__":
