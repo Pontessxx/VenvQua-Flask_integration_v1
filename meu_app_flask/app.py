@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
 import pandas as pd
-import pyodbc
+import pyodbc # type: ignore
 import json
 import warnings
 import plotly.graph_objs as go
@@ -394,7 +394,85 @@ def inativar_nome():
     return redirect(url_for('adiciona_presenca'))
 
 
-    
+@app.route('/presenca', methods=['POST'])
+def controlar_presenca():
+    # Captura os valores dos filtros e dados do formulário
+    nomes = request.form.getlist('nomes')  # Captura os nomes selecionados
+    tipo_presenca = request.form.get('presenca')  # Captura o tipo de presença
+    dia = request.form.get('dia')  # Captura o dia
+    mes = request.form.get('mes')  # Captura o mês
+    ano = request.form.get('ano')  # Captura o ano
+    siteempresa_id = request.form.get('siteempresa_id')  # Captura o siteempresa_id
+    action_type = request.form.get('action_type')  # Captura o tipo de ação (adicionar/remover)
+
+    # Verificar se todos os dados foram fornecidos
+    if not nomes or not dia or not mes or not ano:
+        flash("Por favor, selecione todos os campos: Nomes, Dia, Mês e Ano.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        data_selecionada = datetime(int(ano), int(mes), int(dia))  # Converte a data para datetime
+        cursor = conn.cursor()
+
+        if action_type == 'adicionar':
+            for nome in nomes:
+                cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
+                id_nome = cursor.fetchone()[0]
+
+                # Verifica se já existe um registro para o nome e data
+                cursor.execute("""
+                    SELECT id_Controle FROM Controle 
+                    WHERE id_Nome = ? AND Data = ? AND id_SiteEmpresa = ?
+                """, (id_nome, data_selecionada, siteempresa_id))
+                id_controle = cursor.fetchone()
+
+                cursor.execute("SELECT id_Presenca FROM Presenca WHERE Presenca = ?", (tipo_presenca,))
+                id_presenca = cursor.fetchone()[0]
+
+                if id_controle:
+                    # Se já existe um registro, atualize-o
+                    cursor.execute("""
+                        UPDATE Controle 
+                        SET id_Presenca = ?
+                        WHERE id_Controle = ?
+                    """, (id_presenca, id_controle[0]))
+                else:
+                    # Caso contrário, insira um novo registro
+                    cursor.execute("""
+                        INSERT INTO Controle (id_Nome, id_Presenca, Data, id_SiteEmpresa)
+                        VALUES (?, ?, ?, ?)
+                    """, (id_nome, id_presenca, data_selecionada, siteempresa_id))
+
+            conn.commit()  # Confirmar as alterações no banco de dados
+            flash(f"Presença adicionada/atualizada com sucesso para os nomes selecionados.", "success")
+
+        elif action_type == 'remover':
+            # Remover presença
+            for nome in nomes:
+                cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
+                id_nome = cursor.fetchone()[0]
+
+                cursor.execute("""
+                    SELECT id_Controle FROM Controle
+                    WHERE id_Nome = ? AND Data = ? AND id_SiteEmpresa = ?
+                """, (id_nome, data_selecionada, siteempresa_id))
+
+                id_controle = cursor.fetchone()
+
+                if id_controle:
+                    cursor.execute("DELETE FROM Controle WHERE id_Controle = ?", (id_controle[0],))
+                else:
+                    flash(f"Não foi encontrado registro de presença para {nome} na data {data_selecionada.strftime('%d/%m/%Y')}.", "error")
+
+            conn.commit()  # Confirmar as alterações no banco de dados
+            flash(f"Presença removida com sucesso para os nomes selecionados.", "success")
+
+    except pyodbc.Error as e:
+        flash(f"Erro ao realizar a ação de presença: {e}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
+
 if __name__ == "__main__":
     # print('Runing on http://127.0.0.1/5000')
     app.run(debug=True)

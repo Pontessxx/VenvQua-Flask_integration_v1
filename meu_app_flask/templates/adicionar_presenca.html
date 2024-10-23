@@ -41,7 +41,7 @@
 
         <!-- Segundo Formulário -->
         <h1>Controle de Presença</h1>
-        <form id="formAdicionarPresenca" action="/adicionar-presenca" method="POST">
+        <form id="formAdicionarPresenca" action="/presenca" method="POST">
     
             <div class="checkbox-container">
                 {% for nome in nomes %}
@@ -85,10 +85,16 @@
             <select id="ano" name="ano">
                 <option value="{{ current_year }}" selected>{{ current_year }}</option>
             </select>
+           
+            <!-- Campo oculto para siteempresa_id -->
+            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+
+            <!-- Campo oculto para ação (adicionar/remover) -->
+            <input type="hidden" name="action_type" id="action_type" value="">
     
             <!-- Botões -->
-            <button type="submit">Adicionar Presença</button>
-            <button type="button" onclick="deletarPresenca()">Deletar Presença</button>
+            <button type="submit" onclick="setAction('adicionar')">Adicionar Presença</button>
+            <button type="submit" onclick="setAction('remover')">Remover Presença</button>
         </form>
 
         <!-- Terceiro Formulário para Reativar Nomes -->
@@ -182,6 +188,9 @@
             });
         function voltarParaDashboard() {
             window.location.href = "/";
+        }
+        function setAction(action) {
+            document.getElementById('action_type').value = action;
         }
     </script>
     
