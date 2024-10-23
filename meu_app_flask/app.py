@@ -45,6 +45,7 @@ color_marker_map = {
     'OK': {'cor': '#494949', 'marker': 'circle'},
     'FALTA': {'cor': '#FF5733', 'marker': 'x'},
     'ATESTADO': {'cor': '#FFC300', 'marker': 'diamond'},
+    'FOLGA': {'cor': '#233F7B', 'marker': 'diamond'},
     'CURSO': {'cor': '#8E44AD', 'marker': 'star'},
     'FÉRIAS': {'cor': '#a5a5a5', 'marker': 'square'},
 }
@@ -533,6 +534,59 @@ def adicionar_nome():
         flash(f"Nome '{novo_nome}' adicionado com sucesso!", "success")
     except Exception as e:
         flash(f"Erro ao adicionar nome: {e}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
+
+@app.route('/adicionar-empresa', methods=['POST'])
+def adicionar_empresa():
+    site_nome = request.form.get("site") or session.get('selected_site')
+    nova_empresa = request.form.get("nova_empresa").strip()
+
+    # Verifica se os campos foram preenchidos
+    if not site_nome or not nova_empresa:
+        flash("Por favor, preencha todos os campos.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Inserir a nova empresa na tabela Empresa
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Empresa WHERE Empresas = ?", (nova_empresa,))
+        existe_empresa = cursor.fetchone()[0]
+
+        if existe_empresa > 0:
+            flash(f"A empresa '{nova_empresa}' já existe.", "warning")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Pega o último id_Empresa e soma 1 para criar um novo ID
+        cursor.execute("SELECT MAX(id_Empresa) FROM Empresa")
+        ultimo_id_empresa = cursor.fetchone()[0]
+        novo_id_empresa = ultimo_id_empresa + 1
+
+        # Inserir a nova empresa na tabela Empresa
+        cursor.execute("""
+            INSERT INTO Empresa (id_Empresa, Empresas)
+            VALUES (?, ?)
+        """, (novo_id_empresa, nova_empresa))
+
+        # Pegar o ID do site selecionado
+        site_id = get_site_id(site_nome)
+
+        # Verifica se o site foi encontrado
+        if not site_id:
+            flash("Site não encontrado.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Inserir a associação na tabela Site_Empresa
+        cursor.execute("""
+            INSERT INTO Site_Empresa (id_Sites, id_Empresas, Ativo)
+            VALUES (?, ?, ?)
+        """, (site_id, novo_id_empresa, True))
+
+        conn.commit()  # Confirma as alterações no banco de dados
+        flash(f"Empresa '{nova_empresa}' adicionada com sucesso ao site '{site_nome}'!", "success")
+    except Exception as e:
+        flash(f"Erro ao adicionar empresa: {str(e)}", "error")
 
     return redirect(url_for('adiciona_presenca'))
 

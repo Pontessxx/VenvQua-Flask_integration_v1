@@ -166,6 +166,13 @@ span.select2-dropdown.select2-dropdown--below{
 .select2-container--default .select2-results__option--highlighted[aria-selected]{
     background-color: rgb(255, 75, 75);
 }
+
+.select2-search__field{
+
+    color: var(--text-color);
+
+}
+
 /* Barra de rolagem */
 #table-container::-webkit-scrollbar {
     width: 12px;
