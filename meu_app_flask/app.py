@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, flash, redirect, url_for
+from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session
 import pandas as pd
 import pyodbc # type: ignore
 import json
@@ -56,8 +56,15 @@ def index():
     sites = pd.read_sql(query_sites, conn)['Sites'].tolist()
 
     # Captura os valores dos filtros
-    selected_site = request.form.get("site")
-    selected_empresa = request.form.get("empresa")
+    selected_site = request.form.get("site") or session.get('selected_site')
+    selected_empresa = request.form.get("empresa") or session.get('selected_empresa')
+
+    # Salva os valores na sessão
+    if selected_site:
+        session['selected_site'] = selected_site
+    if selected_empresa:
+        session['selected_empresa'] = selected_empresa
+
     selected_nomes = request.form.getlist("nomes")
     selected_meses = request.form.getlist("meses")
     selected_presenca = request.form.getlist("presenca")
@@ -296,8 +303,15 @@ def adiciona_presenca():
     presenca_opcoes = pd.read_sql("SELECT DISTINCT Presenca FROM Presenca", conn)['Presenca'].tolist()
 
     # Captura os valores dos filtros e converte para maiúsculas
-    selected_site = request.form.get("site").upper() if request.form.get("site") else None
-    selected_empresa = request.form.get("empresa").upper() if request.form.get("empresa") else None
+    selected_site = request.form.get("site") or session.get('selected_site')
+    selected_empresa = request.form.get("empresa") or session.get('selected_empresa')
+
+    # Salva os valores na sessão
+    if selected_site:
+        session['selected_site'] = selected_site
+    if selected_empresa:
+        session['selected_empresa'] = selected_empresa
+
     selected_nomes = [nome.upper() for nome in request.form.getlist("nomes")] if request.form.getlist("nomes") else []
     selected_presenca = request.form.get("presenca").upper() if request.form.get("presenca") else None
     
