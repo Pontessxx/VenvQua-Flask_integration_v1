@@ -444,7 +444,7 @@ def controlar_presenca():
                     """, (id_nome, id_presenca, data_selecionada, siteempresa_id))
 
             conn.commit()  # Confirmar as alterações no banco de dados
-            flash(f"Presença adicionada/atualizada com sucesso para os nomes selecionados.", "success")
+            flash(f"Presença adicionada/atualizada com sucesso para os nomes: {', '.join(nomes)} na data {data_selecionada.strftime('%d/%m/%Y')}", "success")
 
         elif action_type == 'remover':
             # Remover presença
@@ -465,7 +465,7 @@ def controlar_presenca():
                     flash(f"Não foi encontrado registro de presença para {nome} na data {data_selecionada.strftime('%d/%m/%Y')}.", "error")
 
             conn.commit()  # Confirmar as alterações no banco de dados
-            flash(f"Presença removida com sucesso para os nomes selecionados.", "success")
+            flash(f"Presença removida para os nomes: {', '.join(nomes)} na data {data_selecionada.strftime('%d/%m/%Y')}", "success")
 
     except pyodbc.Error as e:
         flash(f"Erro ao realizar a ação de presença: {e}", "error")
