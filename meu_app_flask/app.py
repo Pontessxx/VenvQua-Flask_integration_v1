@@ -414,6 +414,9 @@ def controlar_presenca():
         data_selecionada = datetime(int(ano), int(mes), int(dia))  # Converte a data para datetime
         cursor = conn.cursor()
 
+        nomes_adicionados = []
+        nomes_atualizados = []
+
         if action_type == 'adicionar':
             for nome in nomes:
                 cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
@@ -436,15 +439,22 @@ def controlar_presenca():
                         SET id_Presenca = ?
                         WHERE id_Controle = ?
                     """, (id_presenca, id_controle[0]))
+                    nomes_atualizados.append(nome)
                 else:
                     # Caso contrário, insira um novo registro
                     cursor.execute("""
                         INSERT INTO Controle (id_Nome, id_Presenca, Data, id_SiteEmpresa)
                         VALUES (?, ?, ?, ?)
                     """, (id_nome, id_presenca, data_selecionada, siteempresa_id))
+                    nomes_adicionados.append(nome)
 
             conn.commit()  # Confirmar as alterações no banco de dados
-            flash(f"Presença adicionada/atualizada com sucesso para os nomes: {', '.join(nomes)} na data {data_selecionada.strftime('%d/%m/%Y')}", "success")
+
+            # Exibir mensagens separadas para nomes adicionados e atualizados
+            if nomes_adicionados:
+                flash(f"Presença adicionada com sucesso para os nomes: {', '.join(nomes_adicionados)} na data {data_selecionada.strftime('%d/%m/%Y')}", "success")
+            if nomes_atualizados:
+                flash(f"Presença atualizada com sucesso para os nomes: {', '.join(nomes_atualizados)} na data {data_selecionada.strftime('%d/%m/%Y')}", "warning")
 
         elif action_type == 'remover':
             # Remover presença
@@ -465,7 +475,7 @@ def controlar_presenca():
                     flash(f"Não foi encontrado registro de presença para {nome} na data {data_selecionada.strftime('%d/%m/%Y')}.", "error")
 
             conn.commit()  # Confirmar as alterações no banco de dados
-            flash(f"Presença removida para os nomes: {', '.join(nomes)} na data {data_selecionada.strftime('%d/%m/%Y')}", "success")
+            flash(f"Presença removida para os nomes: {', '.join(nomes)} na data {data_selecionada.strftime('%d/%m/%Y')}", "remover")
 
     except pyodbc.Error as e:
         flash(f"Erro ao realizar a ação de presença: {e}", "error")
