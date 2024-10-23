@@ -107,6 +107,21 @@
             <button type="submit" onclick="setAction('remover')">Remover Presença</button>
         </form>
 
+        <!-- Formulário para adicionar novo nome -->
+        <form id="formAdicionarNome" action="/adicionar-nome" method="POST">
+            <h2>Adicionar Nome</h2>
+
+            <label for="novo_nome">Novo Nome:</label>
+            <input type="text" id="novo_nome" name="novo_nome" placeholder="Digite o novo nome">
+
+            <!-- Campo oculto para siteempresa_id -->
+            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+
+            <!-- Botão para adicionar nome -->
+            <button type="submit">Adicionar Nome</button>
+        </form>
+
+
         <!-- Terceiro Formulário para Reativar Nomes -->
         <form id="formReativarNomes" action="/reativar-nome" method="POST">
             <h2>Reativar Nome</h2>

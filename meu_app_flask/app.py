@@ -496,6 +496,46 @@ def controlar_presenca():
 
     return redirect(url_for('adiciona_presenca'))
 
+@app.route('/adicionar-nome', methods=['POST'])
+def adicionar_nome():
+    novo_nome = request.form.get("novo_nome")
+    siteempresa_id = request.form.get("siteempresa_id")
+
+    if not novo_nome or not siteempresa_id:
+        flash("Por favor, preencha todos os campos.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Formatar o nome: primeira letra maiúscula, o restante em minúsculas
+        novo_nome = novo_nome.strip().title()
+
+        # Verificar se o nome já existe na tabela para o mesmo siteempresa_id
+        cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (novo_nome, siteempresa_id))
+        existe_nome = cursor.fetchone()[0]
+
+        if existe_nome > 0:
+            flash(f"O nome '{novo_nome}' já existe na tabela.", "warning")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Pega o último id_Nomes e soma 1 para criar um novo ID
+        cursor.execute("SELECT MAX(id_Nomes) FROM Nome")
+        ultimo_id = cursor.fetchone()[0]
+        novo_id = ultimo_id + 1
+
+        # Insere o novo nome na tabela Nome
+        cursor.execute("""
+            INSERT INTO Nome (id_Nomes, id_SiteEmpresa, Nome, Ativo)
+            VALUES (?, ?, ?, ?)
+        """, (novo_id, siteempresa_id, novo_nome, True))
+
+        conn.commit()
+        flash(f"Nome '{novo_nome}' adicionado com sucesso!", "success")
+    except Exception as e:
+        flash(f"Erro ao adicionar nome: {e}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
 
 if __name__ == "__main__":
     # print('Runing on http://127.0.0.1/5000')
