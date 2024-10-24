@@ -268,6 +268,19 @@ def get_empresas(site_id):
     empresas = [(row[0], row[1]) for row in cursor.fetchall()]
     return empresas
 
+
+def get_empresas_inativas(site_id):
+    cursor = conn.cursor()
+    query = """
+    SELECT Empresa.id_Empresa, Empresa.Empresas
+    FROM Site_Empresa
+    INNER JOIN Empresa ON Site_Empresa.id_Empresas = Empresa.id_Empresa
+    WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.Ativo = False
+    """
+    cursor.execute(query, (site_id,))
+    empresas = [(row[0], row[1]) for row in cursor.fetchall()]
+    return empresas
+
 def get_empresa_id(empresa_nome, empresas):
     for empresa in empresas:
         if empresa[1] == empresa_nome:
@@ -320,6 +333,7 @@ def adiciona_presenca():
     nomes = []
     nomes_desativados = []
     empresas = []
+    empresas_inativas = []  # Adicionando as inativas
     
     # Obter ano e mês atuais
     current_year = datetime.now().year
@@ -329,7 +343,8 @@ def adiciona_presenca():
     dias = [str(i).zfill(2) for i in range(1, 32)]  # Gera a lista de dias de 01 a 31
     
     if selected_site:
-        empresas = get_empresas(get_site_id(selected_site))
+        empresas = get_empresas(get_site_id(selected_site))  # Empresas ativas
+        empresas_inativas = get_empresas_inativas(get_site_id(selected_site))  # Empresas inativas
     
     if selected_site and selected_empresa:
         site_id = get_site_id(selected_site)
@@ -343,7 +358,8 @@ def adiciona_presenca():
     return render_template(
         "adicionar_presenca.html",
         sites=sites,
-        empresas=[e[1] for e in empresas],
+        empresas=[e[1] for e in empresas],  # Empresas ativas
+        empresas_inativas=[e[1] for e in empresas_inativas],  # Passa as inativas para o template
         selected_site=selected_site,
         selected_empresa=selected_empresa,
         siteempresa_id=siteempresa_id,
@@ -590,6 +606,56 @@ def adicionar_empresa():
 
     return redirect(url_for('adiciona_presenca'))
 
+
+@app.route('/desativar-empresa', methods=['POST'])
+def desativar_empresa():
+    empresa_ativa = request.form.get("empresa_ativa")  # Captura o nome da empresa ativa
+
+    if not empresa_ativa:
+        flash("Nenhuma empresa selecionada para desativar.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Buscar o id da empresa selecionada
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_Empresa FROM Empresa WHERE Empresas = ?", (empresa_ativa,))
+        id_empresa = cursor.fetchone()[0]
+
+        # Atualizar o status da empresa na tabela Site_Empresa para inativa
+        cursor.execute("UPDATE Site_Empresa SET Ativo = False WHERE id_Empresas = ?", (id_empresa,))
+        conn.commit()
+
+        flash(f"Empresa '{empresa_ativa}' desativada com sucesso!", "success")
+    except Exception as e:
+        print(f"Erro ao desativar a empresa: {e}")  # Para depuração
+        flash(f"Erro ao desativar a empresa: {str(e)}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
+@app.route('/ativar-empresa', methods=['POST'])
+def ativar_empresa():
+    empresa_inativa = request.form.get("empresa_inativa")  # Captura o nome da empresa inativa
+
+    if not empresa_inativa:
+        flash("Nenhuma empresa selecionada para ativar.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Buscar o id da empresa selecionada
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_Empresa FROM Empresa WHERE Empresas = ?", (empresa_inativa,))
+        id_empresa = cursor.fetchone()[0]
+
+        # Atualizar o status da empresa na tabela Site_Empresa para ativa
+        cursor.execute("UPDATE Site_Empresa SET Ativo = True WHERE id_Empresas = ?", (id_empresa,))
+        conn.commit()
+
+        flash(f"Empresa '{empresa_inativa}' ativada com sucesso!", "success")
+    except Exception as e:
+        print(f"Erro ao ativar a empresa: {e}")  # Para depuração
+        flash(f"Erro ao ativar a empresa: {str(e)}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
 
 if __name__ == "__main__":
     # print('Runing on http://127.0.0.1/5000')

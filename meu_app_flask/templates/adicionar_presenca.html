@@ -175,7 +175,39 @@
             <button type="submit">Adicionar Empresa</button>
         </form>
 
+        <!-- Formulário para ativar uma empresa -->
+        <form id="formAtivarEmpresa" action="/ativar-empresa" method="POST">
+            <h2>Ativar Empresa</h2>
 
+            <!-- Seleção de Empresa Inativa -->
+            <label for="empresa_inativa">Selecione a Empresa Inativa:</label>
+            <select id="empresa_inativa" name="empresa_inativa">
+                <option value="">-- Escolha uma Empresa --</option>
+                {% for empresa in empresas_inativas %}
+                    <option value="{{ empresa }}">{{ empresa }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Botão para ativar empresa -->
+            <button type="submit">Ativar Empresa</button>
+        </form>
+
+        <!-- Formulário para desativar uma empresa -->
+        <form id="formDesativarEmpresa" action="/desativar-empresa" method="POST">
+            <h2>Desativar Empresa</h2>
+
+            <!-- Seleção de Empresa Ativa -->
+            <label for="empresa_ativa">Selecione a Empresa Ativa:</label>
+            <select id="empresa_ativa" name="empresa_ativa">
+                <option value="">-- Escolha uma Empresa --</option>
+                {% for empresa in empresas %}
+                    <option value="{{ empresa }}">{{ empresa }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Botão para desativar empresa -->
+            <button type="submit">Desativar Empresa</button>
+        </form>
 
     </div>
 
