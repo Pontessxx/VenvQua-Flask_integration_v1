@@ -334,7 +334,7 @@ def adiciona_presenca():
     nomes_desativados = []
     empresas = []
     empresas_inativas = []  # Adicionando as inativas
-    
+
     # Obter ano e mês atuais
     current_year = datetime.now().year
     current_month = datetime.now().strftime("%m")  # Formato de dois dígitos para o mês
@@ -345,11 +345,28 @@ def adiciona_presenca():
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))  # Empresas ativas
         empresas_inativas = get_empresas_inativas(get_site_id(selected_site))  # Empresas inativas
-    
+
+    registros_mes_atual = []
+
     if selected_site and selected_empresa:
         site_id = get_site_id(selected_site)
         empresa_id = get_empresa_id(selected_empresa, empresas)
         siteempresa_id = get_siteempresa_id(site_id, empresa_id)
+        
+        # Consulta para pegar os registros do mês e ano atual
+        query = """
+            SELECT Nome.Nome, Presenca.Presenca, Controle.Data
+            FROM (((Controle
+            INNER JOIN Nome ON Controle.id_Nome = Nome.id_Nomes)
+            INNER JOIN Presenca ON Controle.id_Presenca = Presenca.id_Presenca)
+            INNER JOIN Site_Empresa ON Controle.id_SiteEmpresa = Site_Empresa.id_SiteEmpresa)
+            WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.id_Empresas = ?
+            AND MONTH(Controle.Data) = ? AND YEAR(Controle.Data) = ?
+        """
+        cursor = conn.cursor()
+        cursor.execute(query, (site_id, empresa_id, current_month, current_year))
+        registros_mes_atual = cursor.fetchall()  # Pega os registros
+
         if siteempresa_id:
             nomes = get_nomes(siteempresa_id, ativos=True)
             nomes_desativados = get_nomes(siteempresa_id, ativos=False)  # Buscar nomes desativados
@@ -369,6 +386,7 @@ def adiciona_presenca():
         dias=dias,  # Passa os dias do mês
         current_month=current_month,  # Passa o mês atual
         current_year=current_year,  # Passa o ano atual
+        registros_mes_atual=registros_mes_atual,  # Passa os registros do mês atual
         meses_dict=meses_dict,  # Dicionário de meses em português
         color_marker_map=color_marker_map,
     )

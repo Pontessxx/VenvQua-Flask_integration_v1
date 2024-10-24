@@ -109,6 +109,36 @@
             <button type="submit" onclick="setAction('remover')">Remover Presença</button>
         </form>
 
+        <div>
+            <h2>Registros do Mês Atual: {{ current_month }}/{{ current_year }}</h2>
+
+            <table class="content-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Presença</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if registros_mes_atual %}
+                        {% for registro in registros_mes_atual %}
+                        <tr>
+                            <td>{{ registro[0] }}</td>
+                            <td>{{ registro[1] }}</td>
+                            <td>{{ registro[2].strftime('%d/%m/%Y') }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="3">Nenhum registro encontrado para o mês atual.</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
+        </div>
+
         <!-- Formulário para adicionar novo nome -->
         <form id="formAdicionarNome" action="/adicionar-nome" method="POST">
             <h2>Adicionar Nome</h2>
@@ -122,7 +152,6 @@
             <!-- Botão para adicionar nome -->
             <button type="submit">Adicionar Nome</button>
         </form>
-
 
         <!-- Terceiro Formulário para Reativar Nomes -->
         <form id="formReativarNomes" action="/reativar-nome" method="POST">
