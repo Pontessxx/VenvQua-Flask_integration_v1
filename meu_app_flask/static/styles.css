@@ -7,6 +7,12 @@
     --text-color: rgb(49, 51, 63);
     --table-border-color: rgb(219, 220, 222);
     --box-shadow-color: rgba(0, 0, 0, 0.5);
+    --hover-add-btn: #218838; 
+    --add-btn: #17d443;
+    --hover-remove-btn: #c82333; 
+    --remove-btn: #dc3545;
+    --hover-reactivate-btn: #c39004; 
+    --reactivate-btn: #febe0e;
 }
 
 .dark-mode {
@@ -15,8 +21,17 @@
     --menu-background-color: rgb(38, 39, 48);
     --text-color: rgb(255, 255, 255);
     --table-border-color: rgb(54, 55, 63);
+    --hover-add-btn: #08541a; 
+    --add-btn: #28a745;
+    --hover-remove-btn: #6f0c16; 
+    --remove-btn: #dc3545;
+    --hover-reactivate-btn: #3e2f06; 
+    --reactivate-btn: #ac7f03;
 }
-
+*{
+    margin: 0;
+    padding: 0;
+}
 /* Aplicação das cores */
 body {
     background-color: var(--background-color);
@@ -286,7 +301,59 @@ span.select2-dropdown.select2-dropdown--below{
 *::-webkit-scrollbar {
     width: 12px;
 }
-
+.grupo_selects_froms{
+    display: flex;
+    justify-items: space-around;
+    justify-content: space-between;
+}
+.form_combo{
+    display: flex;
+    flex-direction: column;
+}
+.form_combo label{
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+.form_combo select{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--menu-background-color);
+    color: var(--text-color);
+    border: none;
+}
+.add_btn{
+    cursor: pointer;
+    background-color: var(--add-btn);
+    color: var(--text-color);
+    transition: all 0.3s;
+    border: none;
+    border-radius: 10px;
+}
+.add_btn:hover{
+    background: var(--hover-add-btn);
+}
+.remove_btn{
+    cursor: pointer;
+    background-color: var(--remove-btn);
+    color: var(--text-color);
+    transition: all 0.3s;
+    border: none;
+    border-radius: 10px;
+}
+.remove_btn:hover{
+    background: var(--hover-remove-btn);
+}
+.reactivate_btn{
+    cursor: pointer;
+    background-color: var(--reactivate-btn);
+    color: var(--text-color);
+    transition: all 0.3s;
+    border: none;
+    border-radius: 10px;
+}
+.reactivate_btn:hover{
+    background: var(--hover-reactivate-btn);
+}
 *::-webkit-scrollbar-thumb {
     background-color: var(--menu-background-color);
     border-radius: 10px;

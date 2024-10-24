@@ -52,7 +52,6 @@
         <!-- Segundo Formulário -->
         <h1>Controle de Presença</h1>
         <form id="formAdicionarPresenca" action="/presenca" method="POST">
-    
             <div class="checkbox-container">
                 {% for nome in nomes %}
                     <div class="checkbox-item">
@@ -63,50 +62,60 @@
                     </div>
                 {% endfor %}
             </div>
-    
-            <!-- Seleção de Presença -->
-            <label for="presenca">Presença:</label>
-            <select id="presenca" name="presenca">
-                <option value="">-- Escolha um Tipo de Presença --</option>
-                {% for presenca in presenca_opcoes %}
-                    <option value="{{ presenca }}">{{ presenca }}</option>
-                {% endfor %}
-            </select>
-    
-            <!-- Seleção de Dia -->
-            <label for="dia">Dia:</label>
-            <select id="dia" name="dia">
-                <option value="">-- Escolha o Dia --</option>
-                {% for dia in dias %}
-                    <option value="{{ dia }}">{{ dia }}</option>
-                {% endfor %}
-            </select>
-    
-            <!-- Seleção de Mês -->
-            <label for="mes">Mês:</label>
-            <select id="mes" name="mes">
-                {% for mes_nome, mes_numero in meses_dict.items() %}
-                    <option value="{{ mes_numero }}" {% if mes_numero == current_month %}selected{% endif %}>
-                        {{ mes_nome }}
-                    </option>
-                {% endfor %}
-            </select>
-    
-            <!-- Seleção de Ano -->
-            <label for="ano">Ano:</label>
-            <select id="ano" name="ano">
-                <option value="{{ current_year }}" selected>{{ current_year }}</option>
-            </select>
-           
-            <!-- Campo oculto para siteempresa_id -->
-            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+            <div class="grupo_selects_froms">
 
-            <!-- Campo oculto para ação (adicionar/remover) -->
-            <input type="hidden" name="action_type" id="action_type" value="">
+                <div class="form_combo">
+                    <!-- Seleção de Presença -->
+                    <label for="presenca">Presença:</label>
+                    <select id="presenca" name="presenca">
+                        <option value="">-- Escolha um Tipo de Presença --</option>
+                        {% for presenca in presenca_opcoes %}
+                            <option value="{{ presenca }}">{{ presenca }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form_combo">
     
-            <!-- Botões -->
-            <button type="submit" onclick="setAction('adicionar')">Adicionar Presença</button>
-            <button type="submit" onclick="setAction('remover')">Remover Presença</button>
+                    <!-- Seleção de Dia -->
+                    <label for="dia">Dia:</label>
+                    <select id="dia" name="dia">
+                        <option value="">-- Escolha o Dia --</option>
+                        {% for dia in dias %}
+                            <option value="{{ dia }}">{{ dia }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form_combo">
+    
+                    <!-- Seleção de Mês -->
+                    <label for="mes">Mês:</label>
+                    <select id="mes" name="mes">
+                        {% for mes_nome, mes_numero in meses_dict.items() %}
+                            <option value="{{ mes_numero }}" {% if mes_numero == current_month %}selected{% endif %}>
+                                {{ mes_nome }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form_combo">
+    
+                    <!-- Seleção de Ano -->
+                    <label for="ano">Ano:</label>
+                    <select id="ano" name="ano">
+                        <option value="{{ current_year }}" selected>{{ current_year }}</option>
+                    </select>
+                </div>
+                <!-- Campo oculto para siteempresa_id -->
+                <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+    
+                <!-- Campo oculto para ação (adicionar/remover) -->
+                <input type="hidden" name="action_type" id="action_type" value="">
+        
+                <!-- Botões -->
+                <button type="submit" class="add_btn" onclick="setAction('adicionar')">Adicionar Presença</button>
+                <button type="submit" class="remove_btn" onclick="setAction('remover')">Remover Presença</button>
+            </div>
+           
         </form>
 
         <div>
@@ -150,7 +159,7 @@
             <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
 
             <!-- Botão para adicionar nome -->
-            <button type="submit">Adicionar Nome</button>
+            <button class="add_btn" type="submit">Adicionar Nome</button>
         </form>
 
         <!-- Terceiro Formulário para Reativar Nomes -->
@@ -170,7 +179,7 @@
             <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
 
             <!-- Botão para reativar o nome -->
-            <button type="submit">Reativar Nome</button>
+            <button class="reactivate_btn" type="submit">Reativar Nome</button>
         </form>
 
 
@@ -191,7 +200,7 @@
             <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
 
             <!-- Botão para desativar o nome -->
-            <button type="submit">Desativar Nome</button>
+            <button type="submit" class="remove_btn">Desativar Nome</button>
         </form>
 
         <!-- Formulário para adicionar nova empresa -->
@@ -203,12 +212,12 @@
             <input type="text" id="nova_empresa" name="nova_empresa" placeholder="Digite o nome da nova empresa" required>
 
             <!-- Botão para adicionar empresa -->
-            <button type="submit">Adicionar Empresa</button>
+            <button class="add_btn" type="submit">Adicionar Empresa</button>
         </form>
 
         <!-- Formulário para ativar uma empresa -->
         <form id="formAtivarEmpresa" action="/ativar-empresa" method="POST">
-            <h2>Ativar Empresa</h2>
+            <h2>Reativar Empresa</h2>
 
             <!-- Seleção de Empresa Inativa -->
             <label for="empresa_inativa">Selecione a Empresa Inativa:</label>
@@ -220,7 +229,7 @@
             </select>
 
             <!-- Botão para ativar empresa -->
-            <button type="submit">Ativar Empresa</button>
+            <button type="submit" class="reactivate_btn">Reativar Empresa</button>
         </form>
 
         <!-- Formulário para desativar uma empresa -->
@@ -237,7 +246,7 @@
             </select>
 
             <!-- Botão para desativar empresa -->
-            <button type="submit">Desativar Empresa</button>
+            <button type="submit" class="remove_btn">Desativar Empresa</button>
         </form>
 
     </div>
