@@ -258,7 +258,31 @@ span.select2-dropdown.select2-dropdown--below{
     background-color: #f0ad4e; /* Warning color */
 }
 
+.checkbox-container {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1em;
+    gap: 15px;  /* Aumenta o espaçamento entre os itens */
+}
 
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: var(--menu-background-color);
+    border-radius: 5px;  /* Arredonda os itens de checkbox */
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Adiciona uma leve sombra aos checkboxes */
+}
+.checkbox-container .checkbox-item label {
+    cursor: pointer;
+}
+.checkbox-container .checkbox-item input{
+    background-color: var(--menu-background-color);
+}
+
+.checkbox-item label::after{
+    background: var(--menu-background-color);
+}
 *::-webkit-scrollbar {
     width: 12px;
 }

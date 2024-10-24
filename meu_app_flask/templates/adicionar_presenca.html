@@ -56,8 +56,10 @@
             <div class="checkbox-container">
                 {% for nome in nomes %}
                     <div class="checkbox-item">
-                        <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
-                        <label for="nome_{{ loop.index }}">{{ nome }}</label>
+                        <label for="nome_{{ loop.index }}">
+                            <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
+                            {{ nome }}
+                        </label>
                     </div>
                 {% endfor %}
             </div>
