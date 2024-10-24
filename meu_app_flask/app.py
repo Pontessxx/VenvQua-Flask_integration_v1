@@ -413,10 +413,20 @@ def inativar_nome():
 
     try:
         cursor = conn.cursor()
+
+        # Verificar quantos nomes ativos existem para a SiteEmpresa selecionada
+        cursor.execute("SELECT COUNT(*) FROM Nome WHERE id_SiteEmpresa = ? AND Ativo = True", (siteempresa_id,))
+        num_nomes_ativos = cursor.fetchone()[0]
+
+        # Impedir a desativação se houver apenas um nome ativo
+        if num_nomes_ativos <= 1:
+            flash("Não é possível desativar o último nome ativo. Pelo menos um nome deve permanecer ativo.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
         # Marcar o nome como inativo
-        cursor.execute("UPDATE Nome SET Ativo = False WHERE Nome = ? AND id_SiteEmpresa = ?",
-                       (nome_ativo, siteempresa_id))
+        cursor.execute("UPDATE Nome SET Ativo = False WHERE Nome = ? AND id_SiteEmpresa = ?", (nome_ativo, siteempresa_id))
         conn.commit()
+
         flash(f"Nome {nome_ativo} desativado com sucesso!", "success")
     except Exception as e:
         print(f"Erro ao desativar nome: {e}")  # Saída para depuração
@@ -442,7 +452,15 @@ def controlar_presenca():
         return redirect(url_for('adiciona_presenca'))
 
     try:
+        # Converte a data para datetime e verifica o dia da semana
         data_selecionada = datetime(int(ano), int(mes), int(dia))  # Converte a data para datetime
+        dia_semana = data_selecionada.weekday()  # Retorna o dia da semana (0 = segunda-feira, 6 = domingo)
+
+        # Impede a inserção de presença em sábados (5) e domingos (6)
+        if dia_semana >= 5:
+            flash("Não é permitido adicionar presença em sábados ou domingos.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
         cursor = conn.cursor()
 
         nomes_adicionados = []
@@ -616,8 +634,23 @@ def desativar_empresa():
         return redirect(url_for('adiciona_presenca'))
 
     try:
-        # Buscar o id da empresa selecionada
+        # Verificar quantas empresas ativas existem
         cursor = conn.cursor()
+        cursor.execute("SELECT COUNT(*) FROM Site_Empresa WHERE Ativo = True")
+        num_empresas_ativas = cursor.fetchone()[0]
+
+        # Impedir a desativação da última empresa ativa
+        if num_empresas_ativas <= 1:
+            flash("Não é possível desativar todas as empresas. Pelo menos uma empresa deve estar ativa.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Impedir a desativação da empresa atualmente selecionada na sessão
+        empresa_selecionada = session.get('selected_empresa')
+        if empresa_selecionada == empresa_ativa:
+            flash(f"A empresa '{empresa_ativa}' está em uso e não pode ser desativada.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Buscar o id da empresa selecionada
         cursor.execute("SELECT id_Empresa FROM Empresa WHERE Empresas = ?", (empresa_ativa,))
         id_empresa = cursor.fetchone()[0]
 
