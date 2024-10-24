@@ -10,9 +10,10 @@
     --hover-add-btn: #218838; 
     --add-btn: #17d443;
     --hover-remove-btn: #c82333; 
-    --remove-btn: #dc3545;
+    --remove-btn: #df707b;
     --hover-reactivate-btn: #c39004; 
     --reactivate-btn: #febe0e;
+    --h2-color: rgb(83, 83, 87);
 }
 
 .dark-mode {
@@ -27,6 +28,7 @@
     --remove-btn: #dc3545;
     --hover-reactivate-btn: #3e2f06; 
     --reactivate-btn: #ac7f03;
+    --h2-color: rgb(188, 187, 187);
 }
 *{
     margin: 0;
@@ -88,7 +90,10 @@ body {
     color: var(--text-color);
     border: none;
 }
-
+.main-content h1{
+    margin-top: 0.7em;
+    margin-bottom: 0.7em;
+}
 .main-content {
     flex: 1;
     padding: 20px;
@@ -305,6 +310,7 @@ span.select2-dropdown.select2-dropdown--below{
     display: flex;
     justify-items: space-around;
     justify-content: space-between;
+    margin-bottom: 2em;
 }
 .form_combo{
     display: flex;
@@ -320,6 +326,13 @@ span.select2-dropdown.select2-dropdown--below{
     background-color: var(--menu-background-color);
     color: var(--text-color);
     border: none;
+}
+.adicionando{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.2em;
+    padding: 10px;
 }
 .add_btn{
     cursor: pointer;
@@ -354,6 +367,52 @@ span.select2-dropdown.select2-dropdown--below{
 .reactivate_btn:hover{
     background: var(--hover-reactivate-btn);
 }
+
+
+.tabela_adiciona{
+    margin-bottom: 6em;
+}
+.tabela_adiciona h2{
+    margin-bottom: 0.5em;
+}
+.container_group{
+    margin-top: 1em;
+    display: flex;
+    justify-content: space-around;
+}
+.forms_nome,
+.forms_emrpesa{
+    padding: 3em; 
+    border: solid 1px var(--menu-background-color);
+}
+
+
+.container_group hr{
+    border:solid 1px var(--menu-background-color);
+    margin: 2em 0em 2em 0em;
+}
+.container_group h2{
+    margin-bottom: 0.4em;
+    color: var(--h2-color);
+}
+.container_group button{
+    padding: 10px;
+}
+.container_group select{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--menu-background-color);
+    color: var(--h2-color);
+    border: none;
+}
+.container_group input{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--menu-background-color);
+    color: var(--text-color);
+    border: none;
+}
+
 *::-webkit-scrollbar-thumb {
     background-color: var(--menu-background-color);
     border-radius: 10px;

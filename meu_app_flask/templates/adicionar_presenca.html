@@ -112,13 +112,13 @@
                 <input type="hidden" name="action_type" id="action_type" value="">
         
                 <!-- Botões -->
-                <button type="submit" class="add_btn" onclick="setAction('adicionar')">Adicionar Presença</button>
-                <button type="submit" class="remove_btn" onclick="setAction('remover')">Remover Presença</button>
+                <button type="submit" class="add_btn adicionando" onclick="setAction('adicionar')">Adicionar Presença</button>
+                <button type="submit" class="remove_btn adicionando" onclick="setAction('remover')">Remover Presença</button>
             </div>
            
         </form>
 
-        <div>
+        <section class="tabela_adiciona">
             <h2>Registros do Mês Atual: {{ current_month }}/{{ current_year }}</h2>
 
             <table class="content-table">
@@ -146,108 +146,110 @@
                 </tbody>
             </table>
 
-        </div>
+        </section>
 
-        <!-- Formulário para adicionar novo nome -->
-        <form id="formAdicionarNome" action="/adicionar-nome" method="POST">
-            <h2>Adicionar Nome</h2>
+        <section class="container_group">
+            <div class="forms_nome">
 
-            <label for="novo_nome">Novo Nome:</label>
-            <input type="text" id="novo_nome" name="novo_nome" placeholder="Digite o novo nome">
+                <!-- Formulário para adicionar novo nome -->
+                <form id="formAdicionarNome" action="/adicionar-nome" method="POST">
+                    <h2>Adicionar Nome</h2>
+                    <input type="text" id="novo_nome" name="novo_nome" placeholder="Digite o novo nome">
+        
+                    <!-- Campo oculto para siteempresa_id -->
+                    <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+        
+                    <!-- Botão para adicionar nome -->
+                    <button class="add_btn" type="submit">Adicionar Nome</button>
+                </form>
+                <hr>
+                <!-- Terceiro Formulário para Reativar Nomes -->
+                <form id="formReativarNomes" action="/reativar-nome" method="POST">
+                    <h2>Reativar Nome</h2>
+        
+                    <!-- Seleção de Nomes Desativados -->
+                   
+                    <select id="nomes_desativados" name="nome_desativado">
+                        <option value="">-- Escolha um Nome Desativado --</option>
+                        {% for nome in nomes_desativados %}
+                            <option value="{{ nome }}">{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <!-- Campo oculto para siteempresa_id -->
+                    <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+        
+                    <!-- Botão para reativar o nome -->
+                    <button class="reactivate_btn" type="submit">Reativar Nome</button>
+                </form>
+                <hr>
+        
+                <!-- Quarto Formulário para Desativar Nomes -->
+                <form id="formInativarNomes" action="/inativar-nome" method="POST">
+                    <h2>Desativar Nome</h2>
+        
+                    <select id="nomes_ativos" name="nome_ativo">
+                        <option value="">-- Escolha um Nome Ativo --</option>
+                        {% for nome in nomes %}
+                            <option value="{{ nome }}">{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <!-- Campo oculto para siteempresa_id -->
+                    <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+        
+                    <!-- Botão para desativar o nome -->
+                    <button type="submit" class="remove_btn">Desativar Nome</button>
+                </form>
+            </div>
+            <div class="forms_emrpesa">
 
-            <!-- Campo oculto para siteempresa_id -->
-            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+                <!-- Formulário para adicionar nova empresa -->
+                <form id="formAdicionarEmpresa" action="/adicionar-empresa" method="POST">
+                    <h2>Adicionar Empresa</h2>
+        
+                    <!-- Nome da nova empresa -->
 
-            <!-- Botão para adicionar nome -->
-            <button class="add_btn" type="submit">Adicionar Nome</button>
-        </form>
+                    <input type="text" id="nova_empresa" name="nova_empresa" placeholder="Digite o nome da nova empresa" required>
+        
+                    <!-- Botão para adicionar empresa -->
+                    <button class="add_btn" type="submit">Adicionar Empresa</button>
+                </form>
+                <hr>
+                <!-- Formulário para ativar uma empresa -->
+                <form id="formAtivarEmpresa" action="/ativar-empresa" method="POST">
+                    <h2>Reativar Empresa</h2>
+        
+                    <!-- Seleção de Empresa Inativa -->
+                    <select id="empresa_inativa" name="empresa_inativa">
+                        <option value="">-- Escolha uma Empresa --</option>
+                        {% for empresa in empresas_inativas %}
+                            <option value="{{ empresa }}">{{ empresa }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <!-- Botão para ativar empresa -->
+                    <button type="submit" class="reactivate_btn">Reativar Empresa</button>
+                </form>
+                <hr>
+                <!-- Formulário para desativar uma empresa -->
+                <form id="formDesativarEmpresa" action="/desativar-empresa" method="POST">
+                    <h2>Desativar Empresa</h2>
+        
+                    <!-- Seleção de Empresa Ativa -->
+                    <select id="empresa_ativa" name="empresa_ativa">
+                        <option value="">-- Escolha uma Empresa --</option>
+                        {% for empresa in empresas %}
+                            <option value="{{ empresa }}">{{ empresa }}</option>
+                        {% endfor %}
+                    </select>
+        
+                    <!-- Botão para desativar empresa -->
+                    <button type="submit" class="remove_btn">Desativar Empresa</button>
+                </form>
+            </div>
+        </section>
 
-        <!-- Terceiro Formulário para Reativar Nomes -->
-        <form id="formReativarNomes" action="/reativar-nome" method="POST">
-            <h2>Reativar Nome</h2>
-
-            <!-- Seleção de Nomes Desativados -->
-            <label for="nomes_desativados">Selecione o Nome Desativado:</label>
-            <select id="nomes_desativados" name="nome_desativado">
-                <option value="">-- Escolha um Nome Desativado --</option>
-                {% for nome in nomes_desativados %}
-                    <option value="{{ nome }}">{{ nome }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- Campo oculto para siteempresa_id -->
-            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
-
-            <!-- Botão para reativar o nome -->
-            <button class="reactivate_btn" type="submit">Reativar Nome</button>
-        </form>
-
-
-        <!-- Quarto Formulário para Desativar Nomes -->
-        <form id="formInativarNomes" action="/inativar-nome" method="POST">
-            <h2>Desativar Nome</h2>
-
-            <!-- Seleção de Nomes Ativos -->
-            <label for="nomes_ativos">Selecione o Nome Ativo:</label>
-            <select id="nomes_ativos" name="nome_ativo">
-                <option value="">-- Escolha um Nome Ativo --</option>
-                {% for nome in nomes %}
-                    <option value="{{ nome }}">{{ nome }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- Campo oculto para siteempresa_id -->
-            <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
-
-            <!-- Botão para desativar o nome -->
-            <button type="submit" class="remove_btn">Desativar Nome</button>
-        </form>
-
-        <!-- Formulário para adicionar nova empresa -->
-        <form id="formAdicionarEmpresa" action="/adicionar-empresa" method="POST">
-            <h2>Adicionar Empresa</h2>
-
-            <!-- Nome da nova empresa -->
-            <label for="nova_empresa">Nome da Nova Empresa:</label>
-            <input type="text" id="nova_empresa" name="nova_empresa" placeholder="Digite o nome da nova empresa" required>
-
-            <!-- Botão para adicionar empresa -->
-            <button class="add_btn" type="submit">Adicionar Empresa</button>
-        </form>
-
-        <!-- Formulário para ativar uma empresa -->
-        <form id="formAtivarEmpresa" action="/ativar-empresa" method="POST">
-            <h2>Reativar Empresa</h2>
-
-            <!-- Seleção de Empresa Inativa -->
-            <label for="empresa_inativa">Selecione a Empresa Inativa:</label>
-            <select id="empresa_inativa" name="empresa_inativa">
-                <option value="">-- Escolha uma Empresa --</option>
-                {% for empresa in empresas_inativas %}
-                    <option value="{{ empresa }}">{{ empresa }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- Botão para ativar empresa -->
-            <button type="submit" class="reactivate_btn">Reativar Empresa</button>
-        </form>
-
-        <!-- Formulário para desativar uma empresa -->
-        <form id="formDesativarEmpresa" action="/desativar-empresa" method="POST">
-            <h2>Desativar Empresa</h2>
-
-            <!-- Seleção de Empresa Ativa -->
-            <label for="empresa_ativa">Selecione a Empresa Ativa:</label>
-            <select id="empresa_ativa" name="empresa_ativa">
-                <option value="">-- Escolha uma Empresa --</option>
-                {% for empresa in empresas %}
-                    <option value="{{ empresa }}">{{ empresa }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- Botão para desativar empresa -->
-            <button type="submit" class="remove_btn">Desativar Empresa</button>
-        </form>
 
     </div>
 
