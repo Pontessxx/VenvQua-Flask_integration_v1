@@ -1,9 +1,8 @@
-
-
 :root {
     /* Modo Claro */
     --background-color: rgb(255, 255, 255);
     --menu-background-color: rgb(240, 242, 246);
+    --menu-background-color-btn: rgb(228, 230, 233);
     --text-color: rgb(49, 51, 63);
     --table-border-color: rgb(219, 220, 222);
     --box-shadow-color: rgba(0, 0, 0, 0.5);
@@ -14,11 +13,15 @@
     --hover-reactivate-btn: #c39004; 
     --reactivate-btn: #febe0e;
     --h2-color: rgb(83, 83, 87);
+    --background-color-hover: rgb(52, 55, 59);
+    --text-color-hover: rgb(255, 255, 255);
+    --checkbox-hover: rgb(217, 217, 219);
 }
 
 .dark-mode {
     /* Modo Escuro */
     --background-color: rgb(14, 17, 23);
+    --menu-background-color-btn: rgb(68, 69, 79);
     --menu-background-color: rgb(38, 39, 48);
     --text-color: rgb(255, 255, 255);
     --table-border-color: rgb(54, 55, 63);
@@ -29,6 +32,9 @@
     --hover-reactivate-btn: #3e2f06; 
     --reactivate-btn: #ac7f03;
     --h2-color: rgb(188, 187, 187);
+    --background-color-hover: rgb(255, 255, 255);
+    --text-color-hover: rgb(14, 17, 23);
+    --checkbox-hover: rgb(71, 71, 90);
 }
 *{
     margin: 0;
@@ -74,8 +80,13 @@ body {
 }
 
 .menu button:hover {
-    background-color: var(--menu-background-color);
-    transition: background-color 0.3s;
+    background-color: var(--menu-background-color-btn);
+    transition: background-color 0.5s;
+}
+.menu .thema:hover {
+    background: var(--background-color-hover);
+    color: var(--text-color-hover);
+    transition: all 0.3s ease;
 }
 
 .menu form {
@@ -293,6 +304,10 @@ span.select2-dropdown.select2-dropdown--below{
     border-radius: 5px;  /* Arredonda os itens de checkbox */
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Adiciona uma leve sombra aos checkboxes */
 }
+.checkbox-item:hover{
+    background-color: var(--checkbox-hover);
+    transition: all 0.3s ease-in-out;
+}
 .checkbox-container .checkbox-item label {
     cursor: pointer;
 }
@@ -303,6 +318,7 @@ span.select2-dropdown.select2-dropdown--below{
 .checkbox-item label::after{
     background: var(--menu-background-color);
 }
+
 *::-webkit-scrollbar {
     width: 12px;
 }
@@ -413,6 +429,108 @@ span.select2-dropdown.select2-dropdown--below{
     border: none;
 }
 
+/* Escondendo a checkbox padrão */
+
+input[type="checkbox"] {
+
+    display: none;
+
+}
+
+ 
+
+/* Estilizando o label como uma checkbox */
+
+.checkbox_span {
+
+    width: 10px;
+
+    height: 10px;
+
+    background-color: #f0f0f0;
+
+    border: 2px solid #ccc;
+
+    display: inline-block;
+
+    cursor: pointer;
+
+    position: relative;
+
+}
+
+ 
+
+/* Estilo quando marcado */
+
+input[type="checkbox"]:checked + .checkbox_span {
+
+    background-color: rgb(255, 75, 75);
+
+    border-color: rgb(255, 75, 75);
+
+}
+
+ 
+
+/* Adicionando o checkmark */
+
+.checkbox_span::after {
+
+    content: '';
+
+    position: absolute;
+
+    top: 0px;
+
+    left: 1px;
+
+    width: 4px;
+
+    height: 5px;
+
+    border: solid white;
+
+    border-width: 0 2px 2px 0;
+
+    transform: rotate(45deg);
+
+    opacity: 0; /* Escondido inicialmente */
+
+}
+
+ 
+
+/* Mostrando o checkmark quando o checkbox é marcado */
+
+input[type="checkbox"]:checked + .checkbox_span::after {
+
+    opacity: 1; /* Exibido */
+
+}
+
+ 
+
+.content-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    border-radius: 15px;
+}
+
+.content-table thead th {
+    position: sticky;
+    top: 0;
+    background-color: var(--menu-background-color);
+    z-index: 1;
+}
+
+.content-table th, .content-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--table-border-color);
+    text-align: left;
+    word-wrap: break-word;
+}
 *::-webkit-scrollbar-thumb {
     background-color: var(--menu-background-color);
     border-radius: 10px;
@@ -425,6 +543,19 @@ span.select2-dropdown.select2-dropdown--below{
 
 /* Ajustes para telas menores (768px) */
 @media screen and (max-width: 768px) {
+    .menu{
+        display: flex;
+        flex-direction: column;
+        /* gap: 20px; */
+        transition: background-color 0.3s;
+        height: 100vh;  /* Garante que o menu ocupe 100% da altura da janela */
+        position: fixed;  /* Mantém o menu fixo enquanto rola a página */
+        top: 0;
+        bottom: 0;
+    }
+    .main-content{
+        margin-left: 10em;
+    }
     .graficos {
         flex-direction: column; /* Empilha os gráficos verticalmente */
         align-items: center; /* Centraliza os gráficos */
@@ -439,14 +570,34 @@ span.select2-dropdown.select2-dropdown--below{
 /* Ajustes para telas médias (1064px) */
 @media screen and (max-width: 1064px) {
     .graficos {
-        flex-direction: row; /* Mantém os gráficos em linha para telas médias */
+        flex-direction: column; /* Mantém os gráficos em linha para telas médias */
         justify-content: space-between; /* Garante espaçamento adequado entre os gráficos */
     }
 
     #pie-chart, #stacked-bar-chart {
-        height: 350px; /* Reduz um pouco a altura dos gráficos */
+        height: 500px; /* Reduz um pouco a altura dos gráficos */
     }
 
+    #scatter-chart {
+        height: 400px; /* Mantém a altura do gráfico de dispersão */
+        max-width: 100%; /* Garante que ele ocupe a largura total da seção */
+    }
+}
+
+
+/* Ajustes para telas médias (1064px) */
+@media screen and (max-width: 2881px) {
+    .graficos {
+        /* flex-direction: row;
+        justify-content: space-around; Garante espaçamento adequado entre os gráficos */
+    }
+
+    #pie-chart {
+        height: 500px; /* Reduz um pouco a altura dos gráficos */
+    }
+    #stacked-bar-chart{
+        height: 500px;
+    }
     #scatter-chart {
         height: 400px; /* Mantém a altura do gráfico de dispersão */
         max-width: 100%; /* Garante que ele ocupe a largura total da seção */

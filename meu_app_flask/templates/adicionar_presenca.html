@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -44,8 +45,8 @@
                 {% endfor %}
             </select>
         </form>
-        <button onclick="voltarParaDashboard()">Voltar_ao_Dahs</button>
-        <button id="toggle-theme">Alternar Tema</button>
+        <button onclick="voltarParaDashboard()">Dashboard</button>
+        <button id="toggle-theme" class="thema">Alternar Tema</button>
     </div>
     <div class="main-content">
 
@@ -57,6 +58,7 @@
                     <div class="checkbox-item">
                         <label for="nome_{{ loop.index }}">
                             <input type="checkbox" id="nome_{{ loop.index }}" name="nomes" value="{{ nome }}">
+                            <span class="checkbox_span"></span>
                             {{ nome }}
                         </label>
                     </div>
@@ -120,31 +122,33 @@
 
         <section class="tabela_adiciona">
             <h2>Registros do Mês Atual: {{ current_month }}/{{ current_year }}</h2>
+            <div id="table-container">
 
-            <table class="content-table">
-                <thead>
-                    <tr>
-                        <th>Nome</th>
-                        <th>Presença</th>
-                        <th>Data</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if registros_mes_atual %}
-                        {% for registro in registros_mes_atual %}
+                <table class="content-table">
+                    <thead>
                         <tr>
-                            <td>{{ registro[0] }}</td>
-                            <td>{{ registro[1] }}</td>
-                            <td>{{ registro[2].strftime('%d/%m/%Y') }}</td>
+                            <th>Nome</th>
+                            <th>Presença</th>
+                            <th>Data</th>
                         </tr>
-                        {% endfor %}
-                    {% else %}
-                        <tr>
-                            <td colspan="3">Nenhum registro encontrado para o mês atual.</td>
-                        </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% if registros_mes_atual %}
+                            {% for registro in registros_mes_atual %}
+                            <tr>
+                                <td>{{ registro[0] }}</td>
+                                <td>{{ registro[1] }}</td>
+                                <td>{{ registro[2].strftime('%d/%m/%Y') }}</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="3">Nenhum registro encontrado para o mês atual.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
 
         </section>
 
@@ -248,8 +252,29 @@
                     <button type="submit" class="remove_btn">Desativar Empresa</button>
                 </form>
             </div>
+            
+            <div class="forms_ferias">
+    
+                <!-- Formulário para adicionar nova empresa -->
+                <form id="formProgramaFerias" action="/programa-ferias" method="POST">
+                    <h2>Programar Férias</h2>
+        
+                    <!-- Nome da nova empresa -->
+                    <select id="nomes_ativos" name="nome_ativo">
+                        <option value="">-- Escolha um Nome Ativo --</option>
+                        {% for nome in nomes %}
+                            <option value="{{ nome }}">{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+    
+                    <input type="date" id="data_inicio" name="data_inicio"required>
+                    <input type="date" id="data_fim" name="data_fim"required>
+        
+                    <!-- Botão para adicionar empresa -->
+                    <button class="add_btn" type="submit">Programar</button>
+                </form>
+            </div>
         </section>
-
 
     </div>
 

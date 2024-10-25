@@ -35,9 +35,9 @@ conn = pyodbc.connect(conn_str)
 
 # Dicionário para os meses em português
 meses_dict = {
-    "January": "01", "February": "02", "March": "03", "April": "04",
-    "May": "05", "June": "06", "July": "07", "August": "08",
-    "September": "09", "October": "10", "November": "11", "December": "12"
+    "Janeiro": "01", "Fevereiro": "02", "Março": "03", "Abril": "04",
+    "Maio": "05", "Junho": "06", "Julho": "07", "Agosto": "08",
+    "Setembro": "09", "Outubro": "10", "Novembro": "11", "Dezembro": "12"
 }
 
 # Dicionário de cores e marcadores para cada tipo de presença
@@ -48,6 +48,7 @@ color_marker_map = {
     'FOLGA': {'cor': '#233F7B', 'marker': 'diamond'},
     'CURSO': {'cor': '#8E44AD', 'marker': 'star'},
     'FÉRIAS': {'cor': '#a5a5a5', 'marker': 'square'},
+    'ALPHAVILLE':{'cor': '#76A9B7', 'marker': 'square'},
 }
 
 @app.route("/", methods=["GET", "POST"])
