@@ -86,6 +86,7 @@ def index():
     total_ok = 0
     total_faltas = 0
     total_atestados = 0
+
     # Executa a consulta SQL somente se site e empresa forem selecionados
     if selected_site and selected_empresa:
         try:
@@ -104,9 +105,9 @@ def index():
             # Verificar se há dados retornados
             if rows:
                 df = pd.DataFrame([list(row) for row in rows], columns=['Nome', 'Presenca', 'Data'])
-                
+
                 # Converte a coluna Data para datetime
-                df['Data'] = pd.to_datetime(df['Data'], format='%d/%m/%Y')
+                df['Data'] = pd.to_datetime(df['Data'], format='%Y-%m-%d %H:%M:%S')
 
                 # Aplicar filtros adicionais
                 if selected_nomes:
@@ -117,14 +118,30 @@ def index():
                     selected_meses_numeric = [meses_dict[mes] for mes in selected_meses]
                     df = df[df['Data'].dt.strftime('%m').isin(selected_meses_numeric)]
 
-                # Formatar a data para exibição
-                df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
+                # Gera uma lista contínua de datas entre o menor e o maior valor de data
+                min_data = df['Data'].min()
+                max_data = df['Data'].max()
+                datas_continuas = pd.date_range(min_data, max_data).to_list()
+
+                # Cria uma nova DataFrame com todas as combinações possíveis de nomes e datas contínuas
+                nomes_unicos = df['Nome'].unique()
+                df_continuo = pd.MultiIndex.from_product([nomes_unicos, datas_continuas], names=['Nome', 'Data']).to_frame(index=False)
+
+                # Converte ambas as colunas 'Data' para datetime para garantir a compatibilidade no merge
+                df_continuo['Data'] = pd.to_datetime(df_continuo['Data'])
+                df['Data'] = pd.to_datetime(df['Data'])
+
+                # Faz o merge do DataFrame original com o DataFrame contínuo
+                df_merge = pd.merge(df_continuo, df, on=['Nome', 'Data'], how='left')
+
+                # Preenche valores ausentes com "invisível" ou algum valor placeholder
+                df_merge['Presenca'].fillna('invisível', inplace=True)
 
                 # Gráfico de dispersão
                 fig_dispersao = go.Figure()
 
                 for presenca, info in color_marker_map.items():
-                    df_tipo = df[df['Presenca'].str.upper() == presenca]
+                    df_tipo = df_merge[df_merge['Presenca'].str.upper() == presenca]
                     if not df_tipo.empty:
                         fig_dispersao.add_trace(go.Scatter(
                             x=df_tipo['Data'],
@@ -134,20 +151,35 @@ def index():
                             name=presenca
                         ))
 
+                # Adicionar os pontos invisíveis para garantir o espaçamento correto
+                df_invisivel = df_merge[df_merge['Presenca'] == 'invisível']
+                fig_dispersao.add_trace(go.Scatter(
+                    x=df_invisivel['Data'],
+                    y=df_invisivel['Nome'],
+                    mode='markers',
+                    marker=dict(color='rgba(0,0,0,0)', size=10),  # Invisível
+                    name='invisível',
+                    showlegend=False  # Não mostrar na legenda
+                ))
+
                 # Customizando o layout do gráfico de dispersão
                 fig_dispersao.update_layout(
                     title={
-                        'text': "Gráfico de disperssão de Presenças",
-                        'x': 0.5,  # Centraliza o título
+                        'text': "Gráfico de Dispersão de Presenças",
+                        'x': 0.5,
                         'xanchor': 'center',
                         'yanchor': 'top',
-                        'font': {'size': 24}  # Altera o tamanho da fonte do título
+                        'font': {'size': 24}
                     },
-                    xaxis=dict(showgrid=False, gridcolor='lightgray'),
+                    xaxis=dict(
+                        showgrid=False,
+                        gridcolor='lightgray',
+                        tickformat='%d/%m/%Y'  # Formata as datas no eixo X como dd/mm/yyyy
+                    ),
                     yaxis=dict(showgrid=False, gridcolor='lightgray'),
-                    font=dict(color='#000000'),  # Cor padrão (será alterada via JavaScript)
-                    plot_bgcolor='rgba(0,0,0,0)',  # Remover o fundo da área de plotagem
-                    paper_bgcolor='rgba(0,0,0,0)',  # Remover o fundo ao redor do gráfico
+                    font=dict(color='#000000'),
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    paper_bgcolor='rgba(0,0,0,0)',
                     hovermode='closest'
                 )
 
@@ -182,6 +214,7 @@ def index():
                 # Converte o gráfico de pizza para JSON
                 pie_chart_data = json.dumps(fig_pie, cls=plotly.utils.PlotlyJSONEncoder)
 
+                # Gráfico de Barras Empilhadas
                 df['Presenca'] = df['Presenca'].str.upper()
                 df_agrupado = df.groupby(['Nome', 'Presenca']).size().reset_index(name='counts')
                 barras = []
@@ -199,7 +232,7 @@ def index():
                     barras.append(barra)
 
                 layout = go.Layout(
-                    title = {
+                    title={
                         'text': "Nomes x Presença",
                         'x': 0.5,  # Centraliza o título
                         'xanchor': 'center',
@@ -211,18 +244,20 @@ def index():
                     yaxis=dict(title='Contagem de Presença', showgrid=False),
                     plot_bgcolor='rgba(0,0,0,0)',
                     paper_bgcolor='rgba(0,0,0,0)',
-                    font=dict(color='#000000')  # Cor padrão (será alterada via JavaScript)
+                    font=dict(color='#000000')
                 )
 
                 fig_barras_empilhadas = go.Figure(data=barras, layout=layout)
                 stacked_bar_chart_data = json.dumps(fig_barras_empilhadas, cls=plotly.utils.PlotlyJSONEncoder)
-                
-                total_dias_registrados = df['Data'].nunique()  # Contagem de dias únicos
 
-                # Sum up the counts for OK, FALTAS, ATESTADO
+                # Contagem de dias únicos para o resumo
+                total_dias_registrados = df['Data'].nunique()  # Contagem de dias únicos
                 total_ok = df[df['Presenca'].str.upper() == 'OK'].shape[0]  # Contagem de OK
                 total_faltas = df[df['Presenca'].str.upper() == 'FALTA'].shape[0]  # Contagem de FALTAS
                 total_atestados = df[df['Presenca'].str.upper() == 'ATESTADO'].shape[0]  # Contagem de ATESTADOS
+
+                # Formatar a coluna 'Data' para o formato 'dd/mm/yyyy' para a tabela
+                df['Data'] = df['Data'].dt.strftime('%d/%m/%Y')
 
         except Exception as e:
             print(f"Erro ao consultar ou criar DataFrame: {e}")
@@ -239,9 +274,9 @@ def index():
         selected_nomes=selected_nomes,
         selected_meses=selected_meses,
         selected_presenca=selected_presenca,
-        data=df,
+        data=df,  # Agora com as datas formatadas para dd/mm/yyyy
         pie_chart_data=pie_chart_data,
-        scatter_chart_data=scatter_chart_data,
+        scatter_chart_data=scatter_chart_data,  # Gráfico de dispersão com datas formatadas
         stacked_bar_chart_data=stacked_bar_chart_data,
         total_dias_registrados=total_dias_registrados,
         total_ok=total_ok,
@@ -249,6 +284,7 @@ def index():
         total_atestados=total_atestados,
         color_marker_map=color_marker_map,
     )
+
 
 
 def get_site_id(site_name):
@@ -735,22 +771,37 @@ def programa_ferias():
         cursor = conn.cursor()
         cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
         id_nome_result = cursor.fetchone()
-        
+
         if id_nome_result is None:
             flash(f"Nome '{nome}' não encontrado para o site/empresa selecionado.", "error")
             return redirect(url_for('adiciona_presenca'))
-        
+
         id_nome = id_nome_result[0]
 
         # Busca o ID da presença "FÉRIAS"
         cursor.execute("SELECT id_Presenca FROM Presenca WHERE Presenca = 'FÉRIAS'")
         id_presenca_result = cursor.fetchone()
-        
+
         if id_presenca_result is None:
             flash("Tipo de presença 'FÉRIAS' não encontrado.", "error")
             return redirect(url_for('adiciona_presenca'))
-        
+
         id_presenca = id_presenca_result[0]
+
+        # Verifica se o total de dias de férias excede 30 dias
+        cursor.execute("""
+            SELECT COUNT(*) FROM Controle 
+            WHERE id_Nome = ? AND id_Presenca = ? AND id_SiteEmpresa = ?
+        """, (id_nome, id_presenca, siteempresa_id))
+        total_dias_ferias = cursor.fetchone()[0]
+
+        # Calcula o total de dias que o usuário quer adicionar
+        dias_programados = (data_fim - data_inicio).days + 1
+
+        if total_dias_ferias + dias_programados > 30:
+            flash(f"O nome '{nome}' já tem {total_dias_ferias} dias de férias programados. "
+                  f"Com esses novos {dias_programados} dias, o total excede o limite de 30 dias.", "error")
+            return redirect(url_for('adiciona_presenca'))
 
         # Itera sobre cada dia no intervalo de datas
         current_date = data_inicio
