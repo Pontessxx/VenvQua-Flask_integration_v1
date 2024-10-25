@@ -629,6 +629,28 @@ input[type="checkbox"]:checked + .checkbox_span::after {
 }
 
 
+/* Ajustes para telas grandes (acima de 1064px) */
+@media screen and (min-width: 1065px) {
+    .graficos {
+        display: flex;
+        justify-content: space-around;
+        gap: 20px;
+        flex-wrap: nowrap;  /* Impede que os gráficos quebrem em múltiplas linhas */
+    }
+
+    .graficos .grafico_um, .graficos .grafico_dois {
+        flex: 1;  /* Permite que os gráficos ocupem a mesma proporção de espaço */
+    }
+    .grafico_um{
+        max-width: 330px;
+    }
+    #scatter-chart {
+        width: 100%; /* Expande o gráfico de dispersão para a largura total */
+        height: 400px;
+    }
+}
+
+
 /* Ajustes para telas médias (1064px) */
 @media screen and (max-width: 2881px) {
     .graficos {

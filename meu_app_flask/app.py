@@ -249,6 +249,7 @@ def index():
                         'font': {'size': 24}  # Altera o tamanho da fonte do título
                     },
                     barmode='stack',
+                    width=360,
                     xaxis=dict(title='Nome', showgrid=False),
                     yaxis=dict(title='Contagem de Presença', showgrid=False),
                     plot_bgcolor='rgba(0,0,0,0)',
