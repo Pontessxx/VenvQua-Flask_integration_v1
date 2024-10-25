@@ -162,6 +162,13 @@ body {
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove{
     color: var(--text-color);
 }
+.filtros #ano{
+    background: var(--menu-background-color);
+    color: var(--text-color);
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+}
 /* Tabela */
 #table-container {
     max-height: 400px;
@@ -202,6 +209,43 @@ span.select2-dropdown.select2-dropdown--below{
 
     color: var(--text-color);
 
+}
+
+.forms_ferias{
+    display: flex;
+    padding: 10px;
+    justify-content: space-evenly;
+    background: var(--menu-background-color);
+    margin: 2em 0 2em 0;
+    border-radius: 10px;
+}
+.forms_ferias label{
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+.forms_ferias select{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: none;
+}
+.forms_ferias input{
+    padding: 10px;
+    border-radius: 10px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    border: none;
+}
+.forms_ferias h2{
+    margin-bottom: 0.5em;
+}
+.forms_ferias button{
+    padding: 10px;
+    border-radius: 10px;
+    color: var(--text-color);
+    border: none;
+    cursor: pointer;
 }
 
 /* Barra de rolagem */
