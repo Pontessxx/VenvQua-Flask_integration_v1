@@ -269,10 +269,33 @@
     
                     <input type="date" id="data_inicio" name="data_inicio"required>
                     <input type="date" id="data_fim" name="data_fim"required>
+
+                    <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
         
                     <!-- Botão para adicionar empresa -->
                     <button class="add_btn" type="submit">Programar</button>
                 </form>
+
+                <!-- Formulário para desprogramar férias -->
+                <form id="formDesprogramaFerias" action="/desprogramar-ferias" method="POST">
+                    <h2>Desprogramar Férias</h2>
+
+                    <select id="nomes_ativos" name="nome_ativo">
+                        <option value="">-- Escolha um Nome Ativo --</option>
+                        {% for nome in nomes %}
+                            <option value="{{ nome }}">{{ nome }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <input type="date" id="data_inicio" name="data_inicio" required>
+                    <input type="date" id="data_fim" name="data_fim" required>
+
+                    <!-- Campo oculto para siteempresa_id -->
+                    <input type="hidden" name="siteempresa_id" value="{{ siteempresa_id }}">
+
+                    <button class="remove_btn" type="submit">Desprogramar Férias</button>
+                </form>
+
             </div>
         </section>
 

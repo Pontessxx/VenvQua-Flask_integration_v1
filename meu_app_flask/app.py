@@ -5,7 +5,7 @@ import json
 import warnings
 import plotly.graph_objs as go
 import plotly
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 # import click
 # import logging
@@ -706,6 +706,127 @@ def ativar_empresa():
     except Exception as e:
         print(f"Erro ao ativar a empresa: {e}")  # Para depuração
         flash(f"Erro ao ativar a empresa: {str(e)}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
+@app.route('/programa-ferias', methods=['POST'])
+def programa_ferias():
+    nome = request.form.get('nome_ativo')
+    data_inicio = request.form.get('data_inicio')
+    data_fim = request.form.get('data_fim')
+    siteempresa_id = request.form.get('siteempresa_id')  # Recebe o input hidden do site/empresa
+
+    # Valida se os campos foram preenchidos
+    if not nome or not data_inicio or not data_fim:
+        flash("Por favor, preencha todos os campos.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Converte as datas de início e fim para o formato datetime
+        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d')
+        data_fim = datetime.strptime(data_fim, '%Y-%m-%d')
+
+        # Garante que a data de início não seja maior que a data de fim
+        if data_inicio > data_fim:
+            flash("A data de início não pode ser maior que a data de fim.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Busca o ID do nome associado ao site e empresa
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
+        id_nome_result = cursor.fetchone()
+        
+        if id_nome_result is None:
+            flash(f"Nome '{nome}' não encontrado para o site/empresa selecionado.", "error")
+            return redirect(url_for('adiciona_presenca'))
+        
+        id_nome = id_nome_result[0]
+
+        # Busca o ID da presença "FÉRIAS"
+        cursor.execute("SELECT id_Presenca FROM Presenca WHERE Presenca = 'FÉRIAS'")
+        id_presenca_result = cursor.fetchone()
+        
+        if id_presenca_result is None:
+            flash("Tipo de presença 'FÉRIAS' não encontrado.", "error")
+            return redirect(url_for('adiciona_presenca'))
+        
+        id_presenca = id_presenca_result[0]
+
+        # Itera sobre cada dia no intervalo de datas
+        current_date = data_inicio
+        while current_date <= data_fim:
+            # Não ignorar sábados e domingos para o tipo "FÉRIAS"
+            cursor.execute("""
+                INSERT INTO Controle (id_Nome, id_Presenca, Data, id_SiteEmpresa)
+                VALUES (?, ?, ?, ?)
+            """, (id_nome, id_presenca, current_date, siteempresa_id))
+            current_date += timedelta(days=1)
+
+        conn.commit()
+        flash(f"Férias programadas com sucesso para {nome} de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}", "success")
+
+    except Exception as e:
+        flash(f"Erro ao programar férias: {e}", "error")
+
+    return redirect(url_for('adiciona_presenca'))
+
+@app.route('/desprogramar-ferias', methods=['POST'])
+def desprogramar_ferias():
+    nome = request.form.get('nome_ativo')
+    data_inicio = request.form.get('data_inicio')
+    data_fim = request.form.get('data_fim')
+    siteempresa_id = request.form.get('siteempresa_id')  # Recebe o input hidden do site/empresa
+
+    # Valida se os campos foram preenchidos
+    if not nome or not data_inicio or not data_fim:
+        flash("Por favor, preencha todos os campos.", "error")
+        return redirect(url_for('adiciona_presenca'))
+
+    try:
+        # Converte as datas de início e fim para o formato datetime
+        data_inicio = datetime.strptime(data_inicio, '%Y-%m-%d')
+        data_fim = datetime.strptime(data_fim, '%Y-%m-%d')
+
+        # Garante que a data de início não seja maior que a data de fim
+        if data_inicio > data_fim:
+            flash("A data de início não pode ser maior que a data de fim.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        # Busca o ID do nome associado ao site e empresa
+        cursor = conn.cursor()
+        cursor.execute("SELECT id_Nomes FROM Nome WHERE Nome = ? AND id_SiteEmpresa = ?", (nome, siteempresa_id))
+        id_nome_result = cursor.fetchone()
+
+        if id_nome_result is None:
+            flash(f"Nome '{nome}' não encontrado para o site/empresa selecionado.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        id_nome = id_nome_result[0]
+
+        # Busca o ID da presença "FÉRIAS"
+        cursor.execute("SELECT id_Presenca FROM Presenca WHERE Presenca = 'FÉRIAS'")
+        id_presenca_result = cursor.fetchone()
+
+        if id_presenca_result is None:
+            flash("Tipo de presença 'FÉRIAS' não encontrado.", "error")
+            return redirect(url_for('adiciona_presenca'))
+
+        id_presenca = id_presenca_result[0]
+
+        # Itera sobre cada dia no intervalo de datas e remove as presenças "FÉRIAS"
+        current_date = data_inicio
+        while current_date <= data_fim:
+            cursor.execute("""
+                DELETE FROM Controle 
+                WHERE id_Nome = ? AND id_Presenca = ? AND Data = ? AND id_SiteEmpresa = ?
+            """, (id_nome, id_presenca, current_date, siteempresa_id))
+            current_date += timedelta(days=1)
+
+        conn.commit()
+        flash(f"Férias desprogramadas com sucesso para {nome} de {data_inicio.strftime('%d/%m/%Y')} a {data_fim.strftime('%d/%m/%Y')}", "success")
+
+    except Exception as e:
+        flash(f"Erro ao desprogramar férias: {e}", "error")
 
     return redirect(url_for('adiciona_presenca'))
 
