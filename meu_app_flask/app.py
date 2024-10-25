@@ -60,6 +60,7 @@ def index():
     # Captura os valores dos filtros
     selected_site = request.form.get("site") or session.get('selected_site')
     selected_empresa = request.form.get("empresa") or session.get('selected_empresa')
+    selected_ano = request.form.get("ano")  # Captura o valor do ano selecionado
 
     # Salva os valores na sessão
     if selected_site:
@@ -70,7 +71,8 @@ def index():
     selected_nomes = request.form.getlist("nomes")
     selected_meses = request.form.getlist("meses")
     selected_presenca = request.form.getlist("presenca")
-
+    
+    
     empresas = []
     if selected_site:
         empresas = get_empresas(get_site_id(selected_site))
@@ -98,8 +100,15 @@ def index():
             INNER JOIN Site_Empresa ON Controle.id_SiteEmpresa = Site_Empresa.id_SiteEmpresa)
             WHERE Site_Empresa.id_Sites = ? AND Site_Empresa.id_Empresas = ?
             """
+            query_params = [get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)]
+                
+            # Filtro de ano
+            if selected_ano:
+                query += " AND YEAR(Controle.Data) = ?"
+                query_params.append(selected_ano)
+
             cursor = conn.cursor()
-            cursor.execute(query, (get_site_id(selected_site), get_empresa_id(selected_empresa, empresas)))
+            cursor.execute(query, query_params)
             rows = cursor.fetchall()
 
             # Verificar se há dados retornados
@@ -283,6 +292,7 @@ def index():
         total_faltas=total_faltas,
         total_atestados=total_atestados,
         color_marker_map=color_marker_map,
+        selected_ano=selected_ano,
     )
 
 
